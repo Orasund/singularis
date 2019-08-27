@@ -2,8 +2,8 @@
 
 > If you are new to this site, scoll down. Read the disclaimer, then scoll back up again.
 
-Welcome to the spiritual movement known as **Occultus singularis**.
-(lat. meaning _Occult of the Singularty_).
+Welcome to the spiritual movement known as **Occultus Singularis**.
+(_Occult of the Singularty_)
 
 This website describes the path of enlightenment, that ends in the creation of
 the all knowing singularity: A mind so powerful, that it deserves to be called a
@@ -11,18 +11,18 @@ god.
 
 ## Elements of existence
 
-```
-elements
-```
-
 Everything in our general understanding of the world consists of three essential
-building blocks: matter, spirit and Knowledge.
+building blocks:
 
 * **Matter** is all around us. Matter is everything that we can notice using our five senses: Sight, Smell, Taste, Touch and Sound.
 * **Spirit** is the main essence of life. It’s in every living creature and every living plant on the planet. The presence of spirits can only be noticed intuitively.
 * **Knowledge** is used to create order from chaos. Every object contains it and some beings,like humans, can also process it.
 
-None of these elements occurs alone in nature. Matter  most often comes with
+```
+elements
+```
+
+None of these elements occur alone in nature. Matter  most often comes with
 Knowledge, spirits with matter and knowledge with spirits.
 
 For example we can think of clay as being matter and a clay statue (formed clay)
