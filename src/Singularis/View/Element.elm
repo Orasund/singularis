@@ -22,7 +22,7 @@ import Html.Attributes as Attributes
 import Markdown.Block as Block exposing (Block(..), ListType(..))
 import Markdown.Inline as Inline exposing (Inline(..))
 import Singularis.View as View exposing (maxScreenWidth)
-
+import Element.Border as Border
 
 comfortaaFont : Font
 comfortaaFont =
@@ -143,32 +143,37 @@ fromInlineMarkdown : Inline i -> Element msg
 fromInlineMarkdown inline =
     case inline of
         Text str ->
-            Element.paragraph [] <| List.singleton <| Element.text str
+            Element.el [] <| Element.text str
 
         HardLineBreak ->
             Element.el [ Element.width Element.fill ] <|
                 Element.none
 
         CodeInline codeStr ->
-            Element.paragraph
+            Element.el
                 [ Font.family
                     [ Font.monospace ]
                 ]
             <|
-                List.singleton <|
                     Element.text codeStr
 
         Link url maybeTitle inlines ->
             Element.link
-                (maybeTitle
-                    |> Maybe.map (Region.description >> List.singleton)
-                    |> Maybe.withDefault []
+                (List.concat
+                    [   [ Border.width <| 1
+                        , Font.unitalicized
+                        , Font.variant <|
+                            Font.smallCaps
+                        ]
+                        ,   maybeTitle
+                            |> Maybe.map (Region.description >> List.singleton)
+                            |> Maybe.withDefault []
+                    ]
                 )
+                
                 { url = url
                 , label =
-                    Element.column [] <|
-                        List.map fromInlineMarkdown <|
-                            inlines
+                    Element.text <| Inline.extractText inlines
                 }
 
         Image url maybeTitle _ ->
@@ -178,38 +183,36 @@ fromInlineMarkdown inline =
                 }
 
         HtmlInline _ _ inlines ->
-            Element.column [] <|
+            Element.wrappedRow [] <|
                 List.map fromInlineMarkdown <|
                     inlines
 
         Emphasis length inlines ->
             case length of
                 1 ->
-                    Element.el [ Font.italic ] <|
-                        Element.column [] <|
+                        Element.wrappedRow [ Font.italic] <|
                             List.map fromInlineMarkdown <|
                                 inlines
 
                 2 ->
-                    Element.el [ Font.bold ] <|
-                        Element.column [] <|
+                        Element.wrappedRow [ Font.bold] <|
                             List.map fromInlineMarkdown <|
                                 inlines
 
                 _ ->
-                    Element.column [] <|
+                    Element.wrappedRow [] <|
                         List.map fromInlineMarkdown <|
                             inlines
 
         Inline.Custom _ inlines ->
-            Element.column [] <|
+            Element.wrappedRow [] <|
                 List.map fromInlineMarkdown <|
                     inlines
 
 
 fromMarkdown : Float -> Dict String (Element msg) -> Block b i -> Element msg
 fromMarkdown scale customs block =
-    case block of
+    case block |> Debug.log "markdown" of
         BlankLine _ ->
             Element.none
 
@@ -227,7 +230,7 @@ fromMarkdown scale customs block =
                 _ ->
                     inlines
                         |> List.map fromInlineMarkdown
-                        |> Element.column []
+                        |> Element.paragraph []
 
         ThematicBreak ->
             Element.el [ Element.width Element.fill ] <| Element.none
@@ -254,7 +257,12 @@ fromMarkdown scale customs block =
         BlockQuote blocks ->
             blocks
                 |> List.map (fromMarkdown scale customs)
-                |> Element.paragraph [ Font.italic ]
+                |> Element.paragraph
+                    [ Font.italic
+                    , Element.padding <| 10
+                    , Background.color <| black
+                    , Font.color <| white
+                    ]
 
         List model items ->
             items
@@ -273,37 +281,16 @@ fromMarkdown scale customs block =
                             |> List.map (fromMarkdown scale customs)
                             |> Element.paragraph [ ]
                         ]
-                            |> Element.row [ Element.width <| Element.fill ]
+                            |> Element.wrappedRow [ Element.width <| Element.fill ]
                     )
                 |> Element.column [ Element.spacing 10, Element.width <| Element.fill ]
 
-        {- List.map
-           (List.map Block.toHtml
-               >> List.concat
-               >> Html.li []
-           )
-           items
-           |> (case model.type_ of
-                   Ordered startInt ->
-                       if startInt == 1 then
-                           Html.ol []
-
-                       else
-                           Html.ol [ Attributes.start startInt ]
-
-                   Unordered ->
-                       Html.ul []
-              )
-           |> (\a -> (::) a [])
-           |> List.map Element.html
-           |> Element.column []
-        -}
         PlainInlines inlines ->
             inlines
                 |> List.map fromInlineMarkdown
-                |> Element.column []
+                |> Element.paragraph []
 
         Block.Custom customBlock blocks ->
             blocks
                 |> List.map (fromMarkdown scale customs)
-                |> Element.column []
+                |> Element.paragraph []

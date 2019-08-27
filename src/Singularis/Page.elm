@@ -56,7 +56,7 @@ getPageName input =
                                 "Oracle"
 
                             _ ->
-                                "README"
+                                "Home"
                     )
                     (Query.string "page")
             )
