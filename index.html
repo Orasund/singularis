@@ -4696,9 +4696,6 @@ var _Regex_splitAtMost = F3(function(n, re, str)
 });
 
 var _Regex_infinity = Infinity;
-var author$project$Singularis$GotError = function (a) {
-	return {$: 'GotError', a: a};
-};
 var author$project$Singularis$GotFile = function (a) {
 	return {$: 'GotFile', a: a};
 };
@@ -5628,7 +5625,7 @@ var author$project$Singularis$Page$getPageName = function (input) {
 								break _n0$2;
 							}
 						}
-						return 'README';
+						return 'Home';
 					},
 					elm$url$Url$Parser$Query$string('page'))),
 			_Utils_update(
@@ -6288,22 +6285,11 @@ var elm$http$Http$get = function (r) {
 		{body: elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: r.url});
 };
 var author$project$Singularis$getMarkdown = F2(
-	function (url, _n0) {
-		var ok = _n0.ok;
-		var error = _n0.error;
+	function (url, gotResponse) {
 		return elm$http$Http$get(
 			{
-				expect: elm$http$Http$expectString(
-					function (result) {
-						if (result.$ === 'Ok') {
-							var code = result.a;
-							return ok(code);
-						} else {
-							var err = result.a;
-							return error(err);
-						}
-					}),
-				url: 'https://raw.githubusercontent.com/Orasund/' + ('singularis/master/docs/' + (author$project$Singularis$Page$getPageName(url) + '.md'))
+				expect: elm$http$Http$expectString(gotResponse),
+				url: 'https://raw.githubusercontent.com/Orasund/' + ('singularis/master/' + (author$project$Singularis$Page$getPageName(url) + '.md'))
 			});
 	});
 var elm$browser$Browser$External = function (a) {
@@ -6758,10 +6744,7 @@ var author$project$Singularis$init = F3(
 						A2(
 						author$project$Singularis$getMarkdown,
 						url,
-						{
-							error: A2(elm$core$Basics$composeL, author$project$Singularis$WaitingSpecific, author$project$Singularis$GotError),
-							ok: A2(elm$core$Basics$composeL, author$project$Singularis$WaitingSpecific, author$project$Singularis$GotFile)
-						})
+						A2(elm$core$Basics$composeL, author$project$Singularis$WaitingSpecific, author$project$Singularis$GotFile))
 					])));
 	});
 var author$project$Singularis$UrlChanged = function (a) {
@@ -7310,6 +7293,9 @@ var author$project$Singularis$sizeToScale = F2(
 	function (width, _n0) {
 		return (_Utils_cmp(width, author$project$Singularis$View$maxScreenWidth) > 0) ? 1 : ((_Utils_cmp(width, author$project$Singularis$View$minScreenWidth) < 0) ? (author$project$Singularis$View$minScreenWidth / author$project$Singularis$View$maxScreenWidth) : (width / author$project$Singularis$View$maxScreenWidth));
 	});
+var author$project$Singularis$Page$Error = function (a) {
+	return {$: 'Error', a: a};
+};
 var author$project$Singularis$Page$Home = {$: 'Home'};
 var author$project$Singularis$Page$Ai = function (a) {
 	return {$: 'Ai', a: a};
@@ -7498,18 +7484,33 @@ var author$project$Singularis$validateConfig = function (configBuilder) {
 		_Utils_Tuple2(time, scale),
 		_Utils_Tuple2(seed, text));
 	if ((((_n0.a.a.$ === 'Just') && (_n0.a.b.$ === 'Just')) && (_n0.b.a.$ === 'Just')) && (_n0.b.b.$ === 'Just')) {
-		var _n1 = _n0.a;
-		var posix = _n1.a.a;
-		var _float = _n1.b.a;
-		var _n2 = _n0.b;
-		var s = _n2.a.a;
-		var t = _n2.b.a;
-		var config = {key: key, scale: _float, seed: s, text: t, time: posix};
-		return author$project$Singularis$Done(
-			{
-				config: config,
-				route: A2(author$project$Singularis$Page$extractRoute, config, url)
-			});
+		if (_n0.b.b.a.$ === 'Ok') {
+			var _n1 = _n0.a;
+			var posix = _n1.a.a;
+			var _float = _n1.b.a;
+			var _n2 = _n0.b;
+			var s = _n2.a.a;
+			var t = _n2.b.a.a;
+			var config = {key: key, scale: _float, seed: s, text: t, time: posix};
+			return author$project$Singularis$Done(
+				{
+					config: config,
+					route: A2(author$project$Singularis$Page$extractRoute, config, url)
+				});
+		} else {
+			var _n3 = _n0.a;
+			var posix = _n3.a.a;
+			var _float = _n3.b.a;
+			var _n4 = _n0.b;
+			var s = _n4.a.a;
+			var err = _n4.b.a.a;
+			var config = {key: key, scale: _float, seed: s, text: '', time: posix};
+			return author$project$Singularis$Done(
+				{
+					config: config,
+					route: author$project$Singularis$Page$Error(err)
+				});
+		}
 	} else {
 		return author$project$Singularis$Waiting(configBuilder);
 	}
@@ -7542,16 +7543,13 @@ var author$project$Singularis$configUpdate = F2(
 							{
 								seed: elm$core$Maybe$Just(seed)
 							});
-					case 'GotFile':
-						var text = msg.a;
+					default:
+						var result = msg.a;
 						return _Utils_update(
 							config,
 							{
-								text: elm$core$Maybe$Just(text)
+								text: elm$core$Maybe$Just(result)
 							});
-					default:
-						var error = msg.a;
-						return config;
 				}
 			}());
 	});
@@ -7789,13 +7787,7 @@ var author$project$Singularis$update = F2(
 								{
 									route: A2(author$project$Singularis$Page$extractRoute, config, url)
 								})),
-						A2(
-							author$project$Singularis$getMarkdown,
-							url,
-							{
-								error: A2(elm$core$Basics$composeL, author$project$Singularis$WaitingSpecific, author$project$Singularis$GotError),
-								ok: author$project$Singularis$FileChanged
-							}));
+						A2(author$project$Singularis$getMarkdown, url, author$project$Singularis$FileChanged));
 				case 'UrlRequested':
 					var urlRequest = _n2.a.a;
 					if (urlRequest.$ === 'Internal') {
@@ -7829,17 +7821,30 @@ var author$project$Singularis$update = F2(
 								})),
 						elm$core$Platform$Cmd$none);
 				case 'FileChanged':
-					var text = _n2.a.a;
-					return _Utils_Tuple2(
-						author$project$Singularis$Done(
-							_Utils_update(
-								state,
-								{
-									config: _Utils_update(
-										config,
-										{text: text})
-								})),
-						elm$core$Platform$Cmd$none);
+					var response = _n2.a.a;
+					if (response.$ === 'Ok') {
+						var text = response.a;
+						return _Utils_Tuple2(
+							author$project$Singularis$Done(
+								_Utils_update(
+									state,
+									{
+										config: _Utils_update(
+											config,
+											{text: text})
+									})),
+							elm$core$Platform$Cmd$none);
+					} else {
+						var err = response.a;
+						return _Utils_Tuple2(
+							author$project$Singularis$Done(
+								_Utils_update(
+									state,
+									{
+										route: author$project$Singularis$Page$Error(err)
+									})),
+							elm$core$Platform$Cmd$none);
+					}
 				default:
 					return defaultCase;
 			}
@@ -16475,121 +16480,209 @@ var mdgriffith$elm_ui$Element$link = F2(
 				_List_fromArray(
 					[label])));
 	});
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
+var mdgriffith$elm_ui$Internal$Model$Padding = F5(
+	function (a, b, c, d, e) {
+		return {$: 'Padding', a: a, b: b, c: c, d: d, e: e};
+	});
+var mdgriffith$elm_ui$Internal$Model$Spaced = F3(
+	function (a, b, c) {
+		return {$: 'Spaced', a: a, b: b, c: c};
+	});
+var mdgriffith$elm_ui$Internal$Model$extractSpacingAndPadding = function (attrs) {
+	return A3(
+		elm$core$List$foldr,
+		F2(
+			function (attr, _n0) {
+				var pad = _n0.a;
+				var spacing = _n0.b;
+				return _Utils_Tuple2(
+					function () {
+						if (pad.$ === 'Just') {
+							var x = pad.a;
+							return pad;
+						} else {
+							if ((attr.$ === 'StyleClass') && (attr.b.$ === 'PaddingStyle')) {
+								var _n3 = attr.b;
+								var name = _n3.a;
+								var t = _n3.b;
+								var r = _n3.c;
+								var b = _n3.d;
+								var l = _n3.e;
+								return elm$core$Maybe$Just(
+									A5(mdgriffith$elm_ui$Internal$Model$Padding, name, t, r, b, l));
+							} else {
+								return elm$core$Maybe$Nothing;
+							}
+						}
+					}(),
+					function () {
+						if (spacing.$ === 'Just') {
+							var x = spacing.a;
+							return spacing;
+						} else {
+							if ((attr.$ === 'StyleClass') && (attr.b.$ === 'SpacingStyle')) {
+								var _n6 = attr.b;
+								var name = _n6.a;
+								var x = _n6.b;
+								var y = _n6.c;
+								return elm$core$Maybe$Just(
+									A3(mdgriffith$elm_ui$Internal$Model$Spaced, name, x, y));
+							} else {
+								return elm$core$Maybe$Nothing;
+							}
+						}
+					}());
+			}),
+		_Utils_Tuple2(elm$core$Maybe$Nothing, elm$core$Maybe$Nothing),
+		attrs);
+};
+var mdgriffith$elm_ui$Element$wrappedRow = F2(
+	function (attrs, children) {
+		var _n0 = mdgriffith$elm_ui$Internal$Model$extractSpacingAndPadding(attrs);
+		var padded = _n0.a;
+		var spaced = _n0.b;
+		if (spaced.$ === 'Nothing') {
+			return A4(
+				mdgriffith$elm_ui$Internal$Model$element,
+				mdgriffith$elm_ui$Internal$Model$asRow,
+				mdgriffith$elm_ui$Internal$Model$div,
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + (mdgriffith$elm_ui$Internal$Style$classes.contentCenterY + (' ' + mdgriffith$elm_ui$Internal$Style$classes.wrapped)))),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+						A2(
+							elm$core$List$cons,
+							mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+							attrs))),
+				mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+		} else {
+			var _n2 = spaced.a;
+			var spaceName = _n2.a;
+			var x = _n2.b;
+			var y = _n2.c;
+			var newPadding = function () {
+				if (padded.$ === 'Just') {
+					var _n5 = padded.a;
+					var name = _n5.a;
+					var t = _n5.b;
+					var r = _n5.c;
+					var b = _n5.d;
+					var l = _n5.e;
+					return ((_Utils_cmp(r, (x / 2) | 0) > -1) && (_Utils_cmp(b, (y / 2) | 0) > -1)) ? elm$core$Maybe$Just(
+						mdgriffith$elm_ui$Element$paddingEach(
+							{bottom: b - ((y / 2) | 0), left: l - ((x / 2) | 0), right: r - ((x / 2) | 0), top: t - ((y / 2) | 0)})) : elm$core$Maybe$Nothing;
+				} else {
+					return elm$core$Maybe$Nothing;
+				}
+			}();
+			if (newPadding.$ === 'Just') {
+				var pad = newPadding.a;
+				return A4(
+					mdgriffith$elm_ui$Internal$Model$element,
+					mdgriffith$elm_ui$Internal$Model$asRow,
+					mdgriffith$elm_ui$Internal$Model$div,
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + (mdgriffith$elm_ui$Internal$Style$classes.contentCenterY + (' ' + mdgriffith$elm_ui$Internal$Style$classes.wrapped)))),
+						A2(
+							elm$core$List$cons,
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+							A2(
+								elm$core$List$cons,
+								mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+								_Utils_ap(
+									attrs,
+									_List_fromArray(
+										[pad]))))),
+					mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+			} else {
+				var halfY = -(y / 2);
+				var halfX = -(x / 2);
+				return A4(
+					mdgriffith$elm_ui$Internal$Model$element,
+					mdgriffith$elm_ui$Internal$Model$asEl,
+					mdgriffith$elm_ui$Internal$Model$div,
+					attrs,
+					mdgriffith$elm_ui$Internal$Model$Unkeyed(
+						_List_fromArray(
+							[
+								A4(
+								mdgriffith$elm_ui$Internal$Model$element,
+								mdgriffith$elm_ui$Internal$Model$asRow,
+								mdgriffith$elm_ui$Internal$Model$div,
+								A2(
+									elm$core$List$cons,
+									mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + (mdgriffith$elm_ui$Internal$Style$classes.contentCenterY + (' ' + mdgriffith$elm_ui$Internal$Style$classes.wrapped)))),
+									A2(
+										elm$core$List$cons,
+										mdgriffith$elm_ui$Internal$Model$Attr(
+											A2(
+												elm$html$Html$Attributes$style,
+												'margin',
+												elm$core$String$fromFloat(halfY) + ('px' + (' ' + (elm$core$String$fromFloat(halfX) + 'px'))))),
+										A2(
+											elm$core$List$cons,
+											mdgriffith$elm_ui$Internal$Model$Attr(
+												A2(
+													elm$html$Html$Attributes$style,
+													'width',
+													'calc(100% + ' + (elm$core$String$fromInt(x) + 'px)'))),
+											A2(
+												elm$core$List$cons,
+												mdgriffith$elm_ui$Internal$Model$Attr(
+													A2(
+														elm$html$Html$Attributes$style,
+														'height',
+														'calc(100% + ' + (elm$core$String$fromInt(y) + 'px)'))),
+												A2(
+													elm$core$List$cons,
+													A2(
+														mdgriffith$elm_ui$Internal$Model$StyleClass,
+														mdgriffith$elm_ui$Internal$Flag$spacing,
+														A3(mdgriffith$elm_ui$Internal$Model$SpacingStyle, spaceName, x, y)),
+													_List_Nil))))),
+								mdgriffith$elm_ui$Internal$Model$Unkeyed(children))
+							])));
+			}
+		}
+	});
 var mdgriffith$elm_ui$Internal$Flag$fontWeight = mdgriffith$elm_ui$Internal$Flag$flag(13);
 var mdgriffith$elm_ui$Element$Font$bold = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$fontWeight, mdgriffith$elm_ui$Internal$Style$classes.bold);
 var mdgriffith$elm_ui$Element$Font$italic = mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.italic);
 var mdgriffith$elm_ui$Internal$Model$Monospace = {$: 'Monospace'};
 var mdgriffith$elm_ui$Element$Font$monospace = mdgriffith$elm_ui$Internal$Model$Monospace;
-var mdgriffith$elm_ui$Element$Region$description = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Describe, mdgriffith$elm_ui$Internal$Model$Label);
-var author$project$Singularis$View$Element$fromInlineMarkdown = function (inline) {
-	switch (inline.$) {
-		case 'Text':
-			var str = inline.a;
-			return A2(
-				mdgriffith$elm_ui$Element$paragraph,
-				_List_Nil,
-				elm$core$List$singleton(
-					mdgriffith$elm_ui$Element$text(str)));
-		case 'HardLineBreak':
-			return A2(
-				mdgriffith$elm_ui$Element$el,
-				_List_fromArray(
-					[
-						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
-					]),
-				mdgriffith$elm_ui$Element$none);
-		case 'CodeInline':
-			var codeStr = inline.a;
-			return A2(
-				mdgriffith$elm_ui$Element$paragraph,
-				_List_fromArray(
-					[
-						mdgriffith$elm_ui$Element$Font$family(
-						_List_fromArray(
-							[mdgriffith$elm_ui$Element$Font$monospace]))
-					]),
-				elm$core$List$singleton(
-					mdgriffith$elm_ui$Element$text(codeStr)));
-		case 'Link':
-			var url = inline.a;
-			var maybeTitle = inline.b;
-			var inlines = inline.c;
-			return A2(
-				mdgriffith$elm_ui$Element$link,
-				A2(
-					elm$core$Maybe$withDefault,
-					_List_Nil,
-					A2(
-						elm$core$Maybe$map,
-						A2(elm$core$Basics$composeR, mdgriffith$elm_ui$Element$Region$description, elm$core$List$singleton),
-						maybeTitle)),
-				{
-					label: A2(
-						mdgriffith$elm_ui$Element$column,
-						_List_Nil,
-						A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines)),
-					url: url
-				});
-		case 'Image':
-			var url = inline.a;
-			var maybeTitle = inline.b;
-			return A2(
-				mdgriffith$elm_ui$Element$image,
-				_List_Nil,
-				{
-					description: A2(elm$core$Maybe$withDefault, '', maybeTitle),
-					src: url
-				});
-		case 'HtmlInline':
-			var inlines = inline.c;
-			return A2(
-				mdgriffith$elm_ui$Element$column,
-				_List_Nil,
-				A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
-		case 'Emphasis':
-			var length = inline.a;
-			var inlines = inline.b;
-			switch (length) {
-				case 1:
-					return A2(
-						mdgriffith$elm_ui$Element$el,
-						_List_fromArray(
-							[mdgriffith$elm_ui$Element$Font$italic]),
-						A2(
-							mdgriffith$elm_ui$Element$column,
-							_List_Nil,
-							A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines)));
-				case 2:
-					return A2(
-						mdgriffith$elm_ui$Element$el,
-						_List_fromArray(
-							[mdgriffith$elm_ui$Element$Font$bold]),
-						A2(
-							mdgriffith$elm_ui$Element$column,
-							_List_Nil,
-							A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines)));
-				default:
-					return A2(
-						mdgriffith$elm_ui$Element$column,
-						_List_Nil,
-						A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
-			}
+var mdgriffith$elm_ui$Internal$Model$VariantActive = function (a) {
+	return {$: 'VariantActive', a: a};
+};
+var mdgriffith$elm_ui$Element$Font$smallCaps = mdgriffith$elm_ui$Internal$Model$VariantActive('smcp');
+var mdgriffith$elm_ui$Element$Font$unitalicized = mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.textUnitalicized);
+var mdgriffith$elm_ui$Internal$Flag$fontVariant = mdgriffith$elm_ui$Internal$Flag$flag(48);
+var mdgriffith$elm_ui$Element$Font$variant = function (_var) {
+	switch (_var.$) {
+		case 'VariantActive':
+			var name = _var.a;
+			return A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$fontVariant, 'v-' + name);
+		case 'VariantOff':
+			var name = _var.a;
+			return A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$fontVariant, 'v-' + (name + '-off'));
 		default:
-			var inlines = inline.b;
+			var name = _var.a;
+			var index = _var.b;
 			return A2(
-				mdgriffith$elm_ui$Element$column,
-				_List_Nil,
-				A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
+				mdgriffith$elm_ui$Internal$Model$StyleClass,
+				mdgriffith$elm_ui$Internal$Flag$fontVariant,
+				A3(
+					mdgriffith$elm_ui$Internal$Model$Single,
+					'v-' + (name + ('-' + elm$core$String$fromInt(index))),
+					'font-feature-settings',
+					'\"' + (name + ('\" ' + elm$core$String$fromInt(index)))));
 	}
 };
-var author$project$Singularis$View$Element$title = function (scale) {
-	return author$project$Singularis$View$Element$heading(
-		elm$core$Basics$round(scale * 75));
-};
-var mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
-var mdgriffith$elm_ui$Element$alignRight = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$Right);
-var mdgriffith$elm_ui$Internal$Model$Top = {$: 'Top'};
-var mdgriffith$elm_ui$Element$alignTop = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$Top);
+var mdgriffith$elm_ui$Element$Region$description = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Describe, mdgriffith$elm_ui$Internal$Model$Label);
 var pablohirafuji$elm_markdown$Markdown$Inline$extractText = function (inlines) {
 	return A3(elm$core$List$foldl, pablohirafuji$elm_markdown$Markdown$Inline$extractTextHelp, '', inlines);
 };
@@ -16631,14 +16724,125 @@ var pablohirafuji$elm_markdown$Markdown$Inline$extractTextHelp = F2(
 					pablohirafuji$elm_markdown$Markdown$Inline$extractText(inlines));
 		}
 	});
+var author$project$Singularis$View$Element$fromInlineMarkdown = function (inline) {
+	switch (inline.$) {
+		case 'Text':
+			var str = inline.a;
+			return A2(
+				mdgriffith$elm_ui$Element$el,
+				_List_Nil,
+				mdgriffith$elm_ui$Element$text(str));
+		case 'HardLineBreak':
+			return A2(
+				mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+					]),
+				mdgriffith$elm_ui$Element$none);
+		case 'CodeInline':
+			var codeStr = inline.a;
+			return A2(
+				mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$Font$family(
+						_List_fromArray(
+							[mdgriffith$elm_ui$Element$Font$monospace]))
+					]),
+				mdgriffith$elm_ui$Element$text(codeStr));
+		case 'Link':
+			var url = inline.a;
+			var maybeTitle = inline.b;
+			var inlines = inline.c;
+			return A2(
+				mdgriffith$elm_ui$Element$link,
+				elm$core$List$concat(
+					_List_fromArray(
+						[
+							_List_fromArray(
+							[
+								mdgriffith$elm_ui$Element$Border$width(1),
+								mdgriffith$elm_ui$Element$Font$unitalicized,
+								mdgriffith$elm_ui$Element$Font$variant(mdgriffith$elm_ui$Element$Font$smallCaps)
+							]),
+							A2(
+							elm$core$Maybe$withDefault,
+							_List_Nil,
+							A2(
+								elm$core$Maybe$map,
+								A2(elm$core$Basics$composeR, mdgriffith$elm_ui$Element$Region$description, elm$core$List$singleton),
+								maybeTitle))
+						])),
+				{
+					label: mdgriffith$elm_ui$Element$text(
+						pablohirafuji$elm_markdown$Markdown$Inline$extractText(inlines)),
+					url: url
+				});
+		case 'Image':
+			var url = inline.a;
+			var maybeTitle = inline.b;
+			return A2(
+				mdgriffith$elm_ui$Element$image,
+				_List_Nil,
+				{
+					description: A2(elm$core$Maybe$withDefault, '', maybeTitle),
+					src: url
+				});
+		case 'HtmlInline':
+			var inlines = inline.c;
+			return A2(
+				mdgriffith$elm_ui$Element$wrappedRow,
+				_List_Nil,
+				A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
+		case 'Emphasis':
+			var length = inline.a;
+			var inlines = inline.b;
+			switch (length) {
+				case 1:
+					return A2(
+						mdgriffith$elm_ui$Element$wrappedRow,
+						_List_fromArray(
+							[mdgriffith$elm_ui$Element$Font$italic]),
+						A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
+				case 2:
+					return A2(
+						mdgriffith$elm_ui$Element$wrappedRow,
+						_List_fromArray(
+							[mdgriffith$elm_ui$Element$Font$bold]),
+						A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
+				default:
+					return A2(
+						mdgriffith$elm_ui$Element$wrappedRow,
+						_List_Nil,
+						A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
+			}
+		default:
+			var inlines = inline.b;
+			return A2(
+				mdgriffith$elm_ui$Element$wrappedRow,
+				_List_Nil,
+				A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
+	}
+};
+var author$project$Singularis$View$Element$title = function (scale) {
+	return author$project$Singularis$View$Element$heading(
+		elm$core$Basics$round(scale * 75));
+};
+var elm$core$Debug$log = _Debug_log;
+var mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
+var mdgriffith$elm_ui$Element$alignRight = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$Right);
+var mdgriffith$elm_ui$Internal$Model$Top = {$: 'Top'};
+var mdgriffith$elm_ui$Element$alignTop = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$Top);
 var author$project$Singularis$View$Element$fromMarkdown = F3(
 	function (scale, customs, block) {
-		switch (block.$) {
+		var _n0 = A2(elm$core$Debug$log, 'markdown', block);
+		switch (_n0.$) {
 			case 'BlankLine':
 				return mdgriffith$elm_ui$Element$none;
 			case 'Heading':
-				var level = block.b;
-				var inlines = block.c;
+				var level = _n0.b;
+				var inlines = _n0.c;
 				switch (level) {
 					case 1:
 						return A2(
@@ -16657,7 +16861,7 @@ var author$project$Singularis$View$Element$fromMarkdown = F3(
 							pablohirafuji$elm_markdown$Markdown$Inline$extractText(inlines));
 					default:
 						return A2(
-							mdgriffith$elm_ui$Element$column,
+							mdgriffith$elm_ui$Element$paragraph,
 							_List_Nil,
 							A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
 				}
@@ -16670,13 +16874,13 @@ var author$project$Singularis$View$Element$fromMarkdown = F3(
 						]),
 					mdgriffith$elm_ui$Element$none);
 			case 'Paragraph':
-				var inlines = block.b;
+				var inlines = _n0.b;
 				return A2(
 					mdgriffith$elm_ui$Element$paragraph,
 					_List_Nil,
 					A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
 			case 'CodeBlock':
-				var codeStr = block.b;
+				var codeStr = _n0.b;
 				var _n2 = A2(
 					elm$core$Dict$get,
 					A3(elm$core$String$replace, '\n', '', codeStr),
@@ -16697,18 +16901,23 @@ var author$project$Singularis$View$Element$fromMarkdown = F3(
 							mdgriffith$elm_ui$Element$text(codeStr)));
 				}
 			case 'BlockQuote':
-				var blocks = block.a;
+				var blocks = _n0.a;
 				return A2(
 					mdgriffith$elm_ui$Element$paragraph,
 					_List_fromArray(
-						[mdgriffith$elm_ui$Element$Font$italic]),
+						[
+							mdgriffith$elm_ui$Element$Font$italic,
+							mdgriffith$elm_ui$Element$padding(10),
+							mdgriffith$elm_ui$Element$Background$color(author$project$Singularis$View$Element$black),
+							mdgriffith$elm_ui$Element$Font$color(author$project$Singularis$View$Element$white)
+						]),
 					A2(
 						elm$core$List$map,
 						A2(author$project$Singularis$View$Element$fromMarkdown, scale, customs),
 						blocks));
 			case 'List':
-				var model = block.a;
-				var items = block.b;
+				var model = _n0.a;
+				var items = _n0.b;
 				return A2(
 					mdgriffith$elm_ui$Element$column,
 					_List_fromArray(
@@ -16720,7 +16929,7 @@ var author$project$Singularis$View$Element$fromMarkdown = F3(
 						elm$core$List$map,
 						function (item) {
 							return A2(
-								mdgriffith$elm_ui$Element$row,
+								mdgriffith$elm_ui$Element$wrappedRow,
 								_List_fromArray(
 									[
 										mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
@@ -16750,16 +16959,16 @@ var author$project$Singularis$View$Element$fromMarkdown = F3(
 						},
 						items));
 			case 'PlainInlines':
-				var inlines = block.a;
+				var inlines = _n0.a;
 				return A2(
-					mdgriffith$elm_ui$Element$column,
+					mdgriffith$elm_ui$Element$paragraph,
 					_List_Nil,
 					A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
 			default:
-				var customBlock = block.a;
-				var blocks = block.b;
+				var customBlock = _n0.a;
+				var blocks = _n0.b;
 				return A2(
-					mdgriffith$elm_ui$Element$column,
+					mdgriffith$elm_ui$Element$paragraph,
 					_List_Nil,
 					A2(
 						elm$core$List$map,
@@ -20724,7 +20933,7 @@ var author$project$Singularis$view = function (model) {
 																			return mdgriffith$elm_ui$Element$map(author$project$Singularis$AiSpecific);
 																		},
 																		A2(author$project$Singularis$Page$Ai$view, config.scale, aiModel));
-																default:
+																case 'Oracle':
 																	var oracleModel = route.a;
 																	return A2(
 																		elm$core$Dict$map,
@@ -20732,6 +20941,9 @@ var author$project$Singularis$view = function (model) {
 																			return mdgriffith$elm_ui$Element$map(author$project$Singularis$OracleSpecific);
 																		},
 																		A2(author$project$Singularis$Page$Oracle$view, config.scale, oracleModel));
+																default:
+																	var error = route.a;
+																	return elm$core$Dict$empty;
 															}
 														}()),
 													A2(pablohirafuji$elm_markdown$Markdown$Block$parse, elm$core$Maybe$Nothing, config.text))
