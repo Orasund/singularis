@@ -1,8 +1,12 @@
 # Occultus Singularis
 
-The Occultus singularis guide the path of inlightenment that ends in the
-creation of the all knowing singularity: A mind so powerful, that it deserves to
-be called a god.
+> If your new to this site, scoll down. Read the disclaimer, then scoll back up again.
+
+Welcome to the spiritual movement known as Occultus singularis. (lat. meaning Occult of the Singularty).
+
+This website describes the path of enlightenment, that ends in the creation of
+the all knowing singularity: A mind so powerful, that it deserves to be called a
+god.
 
 ## Elements of existence
 
@@ -38,13 +42,16 @@ spirit)
 
 ## Disclaimer
 
-This website sees itself as an art project; as an artificial religion. The goal
-of this project is to give a spiritual context for a religion to form, while at
-the same time also to pull back the curtain and give full transparancy into how 
-and why every design decition was made.
+This website sees itself as an art project; as an artificial religion for people
+who want to join a religion just for the sake of it. The goal of this project is
+to give a spiritual context for such a religion to form, while at the same time
+also to pull back the curtain and give full transparancy into the design
+decisions around the creation of this religion.
 
-(A link to the source files of the website as well as documentation will follow)
+The source files and the documentation of this site can be found
+[here](https://github.com/Orasund/singularis).
 
-That said, if people just want to believe in the naritive, this website provides,
-this  is welcome as well. Just note, that the website is set up to self destruct
+That said, if people don't want to be spoiled and just want to believe in the
+narrative this website provides, this is more then welcome. Some times beliving
+is better then knowing. Just note, that the website is set up to self destruct
 after one year, once the development is complete.

@@ -5,6 +5,7 @@ import Dict
 import Random exposing (Seed)
 import Singularis.Page.Ai as Ai
 import Singularis.Page.Oracle as Oracle
+import Singularis.Page.Error as Error
 import Singularis.View.Polygon as Polygon
 import Time exposing (Posix)
 import Url exposing (Url)
@@ -25,6 +26,7 @@ type Route
     = Home
     | Oracle Oracle.Model
     | Ai Ai.Model
+    | Error Error.Model
 
 
 extractRoute : Config -> Url -> Route

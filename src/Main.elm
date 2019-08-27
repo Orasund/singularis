@@ -19,6 +19,7 @@ import Singularis.Page as Page exposing (Config, Route(..))
 import Singularis.Page.Ai as Ai
 import Singularis.Page.Home as Home
 import Singularis.Page.Oracle as Oracle
+import Singularis.Page.Error as Error
 import Singularis.View as View exposing (maxScreenWidth, minScreenWidth)
 import Singularis.View.Answer as Answer
 import Singularis.View.Element as Element
@@ -42,7 +43,7 @@ type alias ConfigBuilder =
     , time : Maybe Posix
     , scale : Maybe Float
     , seed : Maybe Seed
-    , text : Maybe String
+    , text : Maybe (Result Error String)
     }
 
 
@@ -63,24 +64,15 @@ sizeToScale width _ =
         toFloat width / maxScreenWidth
 
 
-getMarkdown : Url -> { ok : String -> Msg, error : Error -> Msg } -> Cmd Msg
-getMarkdown url { ok, error } =
+getMarkdown : Url -> (Result Error String -> Msg) -> Cmd Msg
+getMarkdown url gotResponse  =
     Http.get
         { url =
             "https://raw.githubusercontent.com/Orasund/"
-                ++ "singularis/master/docs/"
+                ++ "singularis/master/"
                 ++ (url |> Page.getPageName)
                 ++ ".md"
-        , expect =
-            Http.expectString
-                (\result ->
-                    case result of
-                        Ok code ->
-                            ok code
-
-                        Err err ->
-                            error err
-                )
+        , expect = Http.expectString gotResponse
         }
 
 
@@ -103,10 +95,7 @@ init _ url key =
             )
             Dom.getViewport
         , Random.generate (WaitingSpecific << GotSeed) Random.independentSeed
-        , getMarkdown url
-            { ok = WaitingSpecific << GotFile
-            , error = WaitingSpecific << GotError
-            }
+        , getMarkdown url (WaitingSpecific << GotFile)
         ]
     )
 
@@ -115,8 +104,7 @@ type WaitingMsg
     = GotTime Posix
     | GotSize Int Int
     | GotSeed Seed
-    | GotFile String
-    | GotError Error
+    | GotFile (Result Error String)
 
 
 type Msg
@@ -126,13 +114,13 @@ type Msg
     | UrlChanged Url
     | UrlRequested UrlRequest
     | SizeChanged Int Int
-    | FileChanged String
+    | FileChanged (Result Error String)
 
 
 validateConfig : ConfigBuilder -> Model
 validateConfig ({ key, url, time, scale, seed, text } as configBuilder) =
     case ( ( time, scale ), ( seed, text ) ) of
-        ( ( Just posix, Just float ), ( Just s, Just t ) ) ->
+        ( ( Just posix, Just float ), ( Just s, Just (Ok t) ) ) ->
             let
                 config : Config
                 config =
@@ -144,6 +132,19 @@ validateConfig ({ key, url, time, scale, seed, text } as configBuilder) =
                     }
             in
             Done { config = config, route = url |> Page.extractRoute config }
+        
+        ( ( Just posix, Just float ), ( Just s, Just (Err err) ) ) ->
+            let
+                config : Config
+                config =
+                    { key = key
+                    , time = posix
+                    , scale = float
+                    , seed = s
+                    , text = ""
+                    }
+            in
+            Done { config = config, route = Error err }
 
         _ ->
             Waiting configBuilder
@@ -166,13 +167,10 @@ configUpdate msg config =
                     | seed = Just <| seed
                 }
 
-            GotFile text ->
+            GotFile result->
                 { config
-                    | text = Just <| text
+                    | text = Just <| result
                 }
-
-            GotError error ->
-                config
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -219,10 +217,7 @@ update msg model =
 
                 ( UrlChanged url, _ ) ->
                     ( Done { state | route = url |> Page.extractRoute config }
-                    , getMarkdown url
-                        { ok = FileChanged
-                        , error = WaitingSpecific << GotError
-                        }
+                    , getMarkdown url FileChanged
                     )
 
                 ( UrlRequested urlRequest, _ ) ->
@@ -245,13 +240,22 @@ update msg model =
                     , Cmd.none
                     )
 
-                ( FileChanged text, _ ) ->
-                    ( Done
-                        { state
-                            | config = { config | text = text }
-                        }
-                    , Cmd.none
-                    )
+                ( FileChanged response, _ ) ->
+                    case response of
+                        Ok text ->
+                            ( Done
+                                { state
+                                    | config = { config | text = text }
+                                }
+                            , Cmd.none
+                            )
+                        Err err->
+                            ( Done
+                                { state
+                                    | route = Error <| err
+                                }
+                            , Cmd.none
+                            )
 
                 ( WaitingSpecific _, _ ) ->
                     defaultCase
@@ -343,6 +347,9 @@ view model =
                                                             Oracle.view config.scale oracleModel
                                                                 |> Dict.map
                                                                     (\_ -> Element.map OracleSpecific)
+                                                        
+                                                        Error error ->
+                                                            Dict.empty
                                                     )
                                                 )
                                         ]
