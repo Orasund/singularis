@@ -16829,20 +16829,18 @@ var author$project$Singularis$View$Element$title = function (scale) {
 	return author$project$Singularis$View$Element$heading(
 		elm$core$Basics$round(scale * 75));
 };
-var elm$core$Debug$log = _Debug_log;
 var mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
 var mdgriffith$elm_ui$Element$alignRight = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$Right);
 var mdgriffith$elm_ui$Internal$Model$Top = {$: 'Top'};
 var mdgriffith$elm_ui$Element$alignTop = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$Top);
 var author$project$Singularis$View$Element$fromMarkdown = F3(
 	function (scale, customs, block) {
-		var _n0 = A2(elm$core$Debug$log, 'markdown', block);
-		switch (_n0.$) {
+		switch (block.$) {
 			case 'BlankLine':
 				return mdgriffith$elm_ui$Element$none;
 			case 'Heading':
-				var level = _n0.b;
-				var inlines = _n0.c;
+				var level = block.b;
+				var inlines = block.c;
 				switch (level) {
 					case 1:
 						return A2(
@@ -16874,13 +16872,13 @@ var author$project$Singularis$View$Element$fromMarkdown = F3(
 						]),
 					mdgriffith$elm_ui$Element$none);
 			case 'Paragraph':
-				var inlines = _n0.b;
+				var inlines = block.b;
 				return A2(
 					mdgriffith$elm_ui$Element$paragraph,
 					_List_Nil,
 					A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
 			case 'CodeBlock':
-				var codeStr = _n0.b;
+				var codeStr = block.b;
 				var _n2 = A2(
 					elm$core$Dict$get,
 					A3(elm$core$String$replace, '\n', '', codeStr),
@@ -16901,7 +16899,7 @@ var author$project$Singularis$View$Element$fromMarkdown = F3(
 							mdgriffith$elm_ui$Element$text(codeStr)));
 				}
 			case 'BlockQuote':
-				var blocks = _n0.a;
+				var blocks = block.a;
 				return A2(
 					mdgriffith$elm_ui$Element$paragraph,
 					_List_fromArray(
@@ -16916,8 +16914,8 @@ var author$project$Singularis$View$Element$fromMarkdown = F3(
 						A2(author$project$Singularis$View$Element$fromMarkdown, scale, customs),
 						blocks));
 			case 'List':
-				var model = _n0.a;
-				var items = _n0.b;
+				var model = block.a;
+				var items = block.b;
 				return A2(
 					mdgriffith$elm_ui$Element$column,
 					_List_fromArray(
@@ -16959,14 +16957,14 @@ var author$project$Singularis$View$Element$fromMarkdown = F3(
 						},
 						items));
 			case 'PlainInlines':
-				var inlines = _n0.a;
+				var inlines = block.a;
 				return A2(
 					mdgriffith$elm_ui$Element$paragraph,
 					_List_Nil,
 					A2(elm$core$List$map, author$project$Singularis$View$Element$fromInlineMarkdown, inlines));
 			default:
-				var customBlock = _n0.a;
-				var blocks = _n0.b;
+				var customBlock = block.a;
+				var blocks = block.b;
 				return A2(
 					mdgriffith$elm_ui$Element$paragraph,
 					_List_Nil,
