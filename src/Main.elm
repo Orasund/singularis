@@ -29,7 +29,7 @@ import Svg.Attributes as Attributes
 import Task
 import Time exposing (Posix)
 import Url exposing (Url)
-
+import Element.Background as Background
 
 type alias State =
     { config : Config
@@ -216,9 +216,7 @@ update msg model =
                     defaultCase
 
                 ( UrlChanged url, _ ) ->
-                    ( Done { state | route = url |> Page.extractRoute config }
-                    , getMarkdown url FileChanged
-                    )
+                    init () url config.key
 
                 ( UrlRequested urlRequest, _ ) ->
                     case urlRequest of
@@ -286,15 +284,14 @@ view : Model -> Document Msg
 view model =
     { title = "Occultus Singularis"
     , body =
-        case model of
-            Waiting _ ->
-                []
+            List.singleton <|
+                Element.layout
+                    []
+                <| case model of
+                    Waiting _ ->
+                        Element.none
 
-            Done { route, config } ->
-                List.singleton <|
-                    Element.layout
-                        []
-                    <|
+                    Done { route, config } ->
                         Element.column
                             [ Element.width <| Element.fill
                             , Element.spacing <| round <| (*) config.scale <| 10
@@ -305,54 +302,54 @@ view model =
                                 , { name = "Oracle", url = "?page=oracle" }
                                 , { name = "Singluarity", url = "?page=ai" }
                                 ]
-                            , Element.el
-                                [ Element.width <|
-                                    (Element.fill
-                                        |> Element.maximum (round <|
-                                             maxScreenWidth)
-                                        |> Element.minimum 100
-                                    )
-                                        
-                                , Element.centerX
-                                , Element.padding <|
-                                    round <|
-                                        (*) config.scale <|
-                                            10
-                                ]
-                              <|
-                                Element.column
-                                    [ Element.spacing 10
-                                    , Font.family <|
-                                        [ Element.spectralFont
-                                        , Font.serif
+                                , 
+                                    Element.el
+                                        [ Element.width <|
+                                            (Element.fill
+                                                |> Element.maximum (round <|
+                                                    maxScreenWidth)
+                                            )
+                                                
+                                        , Element.centerX
+                                        , Element.padding <|
+                                            round <|
+                                                (*) config.scale <|
+                                                    10
                                         ]
-                                    , Font.justify
-                                    ]
-                                <|
-                                    List.concat
-                                        [ config.text
-                                            |> Block.parse Nothing
-                                            |> List.map
-                                                (Element.fromMarkdown config.scale
-                                                    (case route of
-                                                        Home ->
-                                                            Home.view config.scale
+                                    <|
+                                        Element.column
+                                            [ Element.spacing 10
+                                            , Font.family <|
+                                                [ Element.spectralFont
+                                                , Font.serif
+                                                ]
+                                            , Font.justify
+                                            ]
+                                        <|
+                                            List.concat
+                                                [ config.text
+                                                    |> Block.parse Nothing
+                                                    |> List.map
+                                                        (Element.fromMarkdown config.scale
+                                                            (case route of
+                                                                Home ->
+                                                                    Home.view config.scale
 
-                                                        Ai aiModel ->
-                                                            Ai.view config.scale aiModel
-                                                                |> Dict.map
-                                                                    (\_ -> Element.map AiSpecific)
+                                                                Ai aiModel ->
+                                                                    Ai.view config.scale aiModel
+                                                                        |> Dict.map
+                                                                            (\_ -> Element.map AiSpecific)
 
-                                                        Oracle oracleModel ->
-                                                            Oracle.view config.scale oracleModel
-                                                                |> Dict.map
-                                                                    (\_ -> Element.map OracleSpecific)
-                                                        
-                                                        Error error ->
-                                                            Dict.empty
-                                                    )
-                                                )
-                                        ]
+                                                                Oracle oracleModel ->
+                                                                    Oracle.view config.scale oracleModel
+                                                                        |> Dict.map
+                                                                            (\_ -> Element.map OracleSpecific)
+                                                                
+                                                                Error error ->
+                                                                    Dict.empty
+                                                            )
+                                                        )
+                                                ]
                             ]
     }
 

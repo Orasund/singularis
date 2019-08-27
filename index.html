@@ -7281,14 +7281,11 @@ var author$project$Singularis$subscriptions = function (model) {
 var author$project$Singularis$Done = function (a) {
 	return {$: 'Done', a: a};
 };
-var author$project$Singularis$FileChanged = function (a) {
-	return {$: 'FileChanged', a: a};
-};
 var author$project$Singularis$OracleSpecific = function (a) {
 	return {$: 'OracleSpecific', a: a};
 };
 var author$project$Singularis$View$maxScreenWidth = 800;
-var author$project$Singularis$View$minScreenWidth = 500;
+var author$project$Singularis$View$minScreenWidth = 100;
 var author$project$Singularis$sizeToScale = F2(
 	function (width, _n0) {
 		return (_Utils_cmp(width, author$project$Singularis$View$maxScreenWidth) > 0) ? 1 : ((_Utils_cmp(width, author$project$Singularis$View$minScreenWidth) < 0) ? (author$project$Singularis$View$minScreenWidth / author$project$Singularis$View$maxScreenWidth) : (width / author$project$Singularis$View$maxScreenWidth));
@@ -7780,14 +7777,7 @@ var author$project$Singularis$update = F2(
 					}
 				case 'UrlChanged':
 					var url = _n2.a.a;
-					return _Utils_Tuple2(
-						author$project$Singularis$Done(
-							_Utils_update(
-								state,
-								{
-									route: A2(author$project$Singularis$Page$extractRoute, config, url)
-								})),
-						A2(author$project$Singularis$getMarkdown, url, author$project$Singularis$FileChanged));
+					return A3(author$project$Singularis$init, _Utils_Tuple0, url, config.key);
 				case 'UrlRequested':
 					var urlRequest = _n2.a.a;
 					if (urlRequest.$ === 'Internal') {
@@ -17253,14 +17243,6 @@ var mdgriffith$elm_ui$Element$maximum = F2(
 	function (i, l) {
 		return A2(mdgriffith$elm_ui$Internal$Model$Max, i, l);
 	});
-var mdgriffith$elm_ui$Internal$Model$Min = F2(
-	function (a, b) {
-		return {$: 'Min', a: a, b: b};
-	});
-var mdgriffith$elm_ui$Element$minimum = F2(
-	function (i, l) {
-		return A2(mdgriffith$elm_ui$Internal$Model$Min, i, l);
-	});
 var mdgriffith$elm_ui$Element$Font$justify = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$fontAlignment, mdgriffith$elm_ui$Internal$Style$classes.textJustify);
 var mdgriffith$elm_ui$Internal$Model$Serif = {$: 'Serif'};
 var mdgriffith$elm_ui$Element$Font$serif = mdgriffith$elm_ui$Internal$Model$Serif;
@@ -20856,17 +20838,17 @@ var pablohirafuji$elm_markdown$Markdown$Block$parse = function (maybeOptions) {
 };
 var author$project$Singularis$view = function (model) {
 	return {
-		body: function () {
-			if (model.$ === 'Waiting') {
-				return _List_Nil;
-			} else {
-				var route = model.a.route;
-				var config = model.a.config;
-				return elm$core$List$singleton(
-					A2(
-						mdgriffith$elm_ui$Element$layout,
-						_List_Nil,
-						A2(
+		body: elm$core$List$singleton(
+			A2(
+				mdgriffith$elm_ui$Element$layout,
+				_List_Nil,
+				function () {
+					if (model.$ === 'Waiting') {
+						return mdgriffith$elm_ui$Element$none;
+					} else {
+						var route = model.a.route;
+						var config = model.a.config;
+						return A2(
 							mdgriffith$elm_ui$Element$column,
 							_List_fromArray(
 								[
@@ -20891,12 +20873,9 @@ var author$project$Singularis$view = function (model) {
 										[
 											mdgriffith$elm_ui$Element$width(
 											A2(
-												mdgriffith$elm_ui$Element$minimum,
-												100,
-												A2(
-													mdgriffith$elm_ui$Element$maximum,
-													elm$core$Basics$round(author$project$Singularis$View$maxScreenWidth),
-													mdgriffith$elm_ui$Element$fill))),
+												mdgriffith$elm_ui$Element$maximum,
+												elm$core$Basics$round(author$project$Singularis$View$maxScreenWidth),
+												mdgriffith$elm_ui$Element$fill)),
 											mdgriffith$elm_ui$Element$centerX,
 											mdgriffith$elm_ui$Element$padding(
 											elm$core$Basics$round(config.scale * 10))
@@ -20946,9 +20925,9 @@ var author$project$Singularis$view = function (model) {
 														}()),
 													A2(pablohirafuji$elm_markdown$Markdown$Block$parse, elm$core$Maybe$Nothing, config.text))
 												]))))
-								]))));
-			}
-		}(),
+								]));
+					}
+				}())),
 		title: 'Occultus Singularis'
 	};
 };

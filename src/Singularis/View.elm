@@ -10,7 +10,7 @@ maxScreenWidth =
 
 minScreenWidth : Float
 minScreenWidth =
-    500
+    100
 
 
 svgSize : Float
