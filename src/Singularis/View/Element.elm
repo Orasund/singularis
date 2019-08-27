@@ -212,7 +212,7 @@ fromInlineMarkdown inline =
 
 fromMarkdown : Float -> Dict String (Element msg) -> Block b i -> Element msg
 fromMarkdown scale customs block =
-    case block |> Debug.log "markdown" of
+    case block of
         BlankLine _ ->
             Element.none
 
