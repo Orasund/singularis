@@ -18,6 +18,7 @@ import Singularis.Data.Answer as Answer exposing (list)
 import Singularis.Page as Page exposing (Config, Route(..))
 import Singularis.Page.Ai as Ai
 import Singularis.Page.Home as Home
+import Singularis.Page.Book as Book
 import Singularis.Page.Oracle as Oracle
 import Singularis.Page.Error as Error
 import Singularis.View as View exposing (maxScreenWidth, minScreenWidth)
@@ -301,6 +302,7 @@ view model =
                                 [ { name = "Home", url = "?" }
                                 , { name = "Oracle", url = "?page=oracle" }
                                 , { name = "Singluarity", url = "?page=ai" }
+                                , { name = "Book", url = "?page=book" }
                                 ]
                                 , 
                                     Element.el
@@ -324,6 +326,7 @@ view model =
                                                 , Font.serif
                                                 ]
                                             , Font.justify
+                                            , Element.width <| Element.fill
                                             ]
                                         <|
                                             List.concat
@@ -334,6 +337,9 @@ view model =
                                                             (case route of
                                                                 Home ->
                                                                     Home.view config.scale
+
+                                                                Book ->
+                                                                    Book.view config.scale
 
                                                                 Ai aiModel ->
                                                                     Ai.view config.scale aiModel

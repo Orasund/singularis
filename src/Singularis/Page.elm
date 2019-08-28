@@ -27,6 +27,7 @@ type Route
     | Oracle Oracle.Model
     | Ai Ai.Model
     | Error Error.Model
+    | Book
 
 
 extractRoute : Config -> Url -> Route
@@ -54,6 +55,9 @@ getPageName input =
 
                             Just "oracle" ->
                                 "Oracle"
+                            
+                            Just "book" ->
+                                "Book"
 
                             _ ->
                                 "Home"
@@ -74,6 +78,9 @@ matchRoute { time, seed } =
 
                     Just "oracle" ->
                         question |> Oracle.init time |> Oracle
+                    
+                    Just "book" ->
+                        Book
 
                     _ ->
                         Home
