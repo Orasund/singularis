@@ -5610,7 +5610,7 @@ var author$project$Singularis$Page$getPageName = function (input) {
 				A2(
 					elm$url$Url$Parser$Query$map,
 					function (page) {
-						_n0$2:
+						_n0$3:
 						while (true) {
 							if (page.$ === 'Just') {
 								switch (page.a) {
@@ -5618,11 +5618,13 @@ var author$project$Singularis$Page$getPageName = function (input) {
 										return 'Ai';
 									case 'oracle':
 										return 'Oracle';
+									case 'book':
+										return 'Book';
 									default:
-										break _n0$2;
+										break _n0$3;
 								}
 							} else {
-								break _n0$2;
+								break _n0$3;
 							}
 						}
 						return 'Home';
@@ -7297,6 +7299,7 @@ var author$project$Singularis$Page$Home = {$: 'Home'};
 var author$project$Singularis$Page$Ai = function (a) {
 	return {$: 'Ai', a: a};
 };
+var author$project$Singularis$Page$Book = {$: 'Book'};
 var author$project$Singularis$Page$Oracle = function (a) {
 	return {$: 'Oracle', a: a};
 };
@@ -7433,7 +7436,7 @@ var author$project$Singularis$Page$matchRoute = function (_n0) {
 			elm$url$Url$Parser$Query$map2,
 			F2(
 				function (page, question) {
-					_n1$2:
+					_n1$3:
 					while (true) {
 						if (page.$ === 'Just') {
 							switch (page.a) {
@@ -7443,11 +7446,13 @@ var author$project$Singularis$Page$matchRoute = function (_n0) {
 								case 'oracle':
 									return author$project$Singularis$Page$Oracle(
 										A2(author$project$Singularis$Page$Oracle$init, time, question));
+								case 'book':
+									return author$project$Singularis$Page$Book;
 								default:
-									break _n1$2;
+									break _n1$3;
 							}
 						} else {
-							break _n1$2;
+							break _n1$3;
 						}
 					}
 					return author$project$Singularis$Page$Home;
@@ -15031,6 +15036,238 @@ var author$project$Singularis$Page$Ai$view = F2(
 							])))
 				]));
 	});
+var ianmackenzie$elm_geometry$Geometry$Types$Direction2d = function (a) {
+	return {$: 'Direction2d', a: a};
+};
+var ianmackenzie$elm_geometry$Direction2d$unsafe = ianmackenzie$elm_geometry$Geometry$Types$Direction2d;
+var ianmackenzie$elm_geometry$Direction2d$x = ianmackenzie$elm_geometry$Direction2d$unsafe(
+	_Utils_Tuple2(1, 0));
+var ianmackenzie$elm_geometry$Direction2d$y = ianmackenzie$elm_geometry$Direction2d$unsafe(
+	_Utils_Tuple2(0, 1));
+var ianmackenzie$elm_geometry$Geometry$Types$Frame2d = function (a) {
+	return {$: 'Frame2d', a: a};
+};
+var ianmackenzie$elm_geometry$Frame2d$unsafe = ianmackenzie$elm_geometry$Geometry$Types$Frame2d;
+var ianmackenzie$elm_geometry$Frame2d$atPoint = function (point) {
+	return ianmackenzie$elm_geometry$Frame2d$unsafe(
+		{originPoint: point, xDirection: ianmackenzie$elm_geometry$Direction2d$x, yDirection: ianmackenzie$elm_geometry$Direction2d$y});
+};
+var ianmackenzie$elm_geometry$Geometry$Types$Rectangle2d = function (a) {
+	return {$: 'Rectangle2d', a: a};
+};
+var ianmackenzie$elm_float_extra$Float$Extra$interpolateFrom = F3(
+	function (start, end, parameter) {
+		return (parameter <= 0.5) ? (start + (parameter * (end - start))) : (end + ((1 - parameter) * (start - end)));
+	});
+var ianmackenzie$elm_geometry$Point2d$interpolateFrom = F3(
+	function (p1, p2, t) {
+		var _n0 = ianmackenzie$elm_geometry$Point2d$coordinates(p2);
+		var x2 = _n0.a;
+		var y2 = _n0.b;
+		var _n1 = ianmackenzie$elm_geometry$Point2d$coordinates(p1);
+		var x1 = _n1.a;
+		var y1 = _n1.b;
+		return ianmackenzie$elm_geometry$Point2d$fromCoordinates(
+			_Utils_Tuple2(
+				A3(ianmackenzie$elm_float_extra$Float$Extra$interpolateFrom, x1, x2, t),
+				A3(ianmackenzie$elm_float_extra$Float$Extra$interpolateFrom, y1, y2, t)));
+	});
+var ianmackenzie$elm_geometry$Point2d$midpoint = F2(
+	function (firstPoint, secondPoint) {
+		return A3(ianmackenzie$elm_geometry$Point2d$interpolateFrom, firstPoint, secondPoint, 0.5);
+	});
+var ianmackenzie$elm_geometry$Rectangle2d$from = F2(
+	function (firstPoint, secondPoint) {
+		var computedCenterPoint = A2(ianmackenzie$elm_geometry$Point2d$midpoint, firstPoint, secondPoint);
+		var _n0 = ianmackenzie$elm_geometry$Point2d$coordinates(secondPoint);
+		var x2 = _n0.a;
+		var y2 = _n0.b;
+		var _n1 = ianmackenzie$elm_geometry$Point2d$coordinates(firstPoint);
+		var x1 = _n1.a;
+		var y1 = _n1.b;
+		return ianmackenzie$elm_geometry$Geometry$Types$Rectangle2d(
+			{
+				axes: ianmackenzie$elm_geometry$Frame2d$atPoint(computedCenterPoint),
+				dimensions: _Utils_Tuple2(
+					elm$core$Basics$abs(x2 - x1),
+					elm$core$Basics$abs(y2 - y1))
+			});
+	});
+var ianmackenzie$elm_geometry$Bootstrap$Frame2d$originPoint = function (_n0) {
+	var properties = _n0.a;
+	return properties.originPoint;
+};
+var ianmackenzie$elm_geometry$Bootstrap$Direction2d$components = function (_n0) {
+	var components_ = _n0.a;
+	return components_;
+};
+var ianmackenzie$elm_geometry$Bootstrap$Frame2d$xDirection = function (_n0) {
+	var properties = _n0.a;
+	return properties.xDirection;
+};
+var ianmackenzie$elm_geometry$Bootstrap$Frame2d$yDirection = function (_n0) {
+	var properties = _n0.a;
+	return properties.yDirection;
+};
+var ianmackenzie$elm_geometry$Vector2d$placeIn = function (frame) {
+	var _n0 = ianmackenzie$elm_geometry$Bootstrap$Direction2d$components(
+		ianmackenzie$elm_geometry$Bootstrap$Frame2d$yDirection(frame));
+	var x2 = _n0.a;
+	var y2 = _n0.b;
+	var _n1 = ianmackenzie$elm_geometry$Bootstrap$Direction2d$components(
+		ianmackenzie$elm_geometry$Bootstrap$Frame2d$xDirection(frame));
+	var x1 = _n1.a;
+	var y1 = _n1.b;
+	return function (vector) {
+		var _n2 = ianmackenzie$elm_geometry$Vector2d$components(vector);
+		var x = _n2.a;
+		var y = _n2.b;
+		return ianmackenzie$elm_geometry$Vector2d$fromComponents(
+			_Utils_Tuple2((x1 * x) + (x2 * y), (y1 * x) + (y2 * y)));
+	};
+};
+var ianmackenzie$elm_geometry$Point2d$placeIn = F2(
+	function (frame, point) {
+		return A2(
+			ianmackenzie$elm_geometry$Point2d$addTo,
+			ianmackenzie$elm_geometry$Bootstrap$Frame2d$originPoint(frame),
+			A2(
+				ianmackenzie$elm_geometry$Vector2d$placeIn,
+				frame,
+				ianmackenzie$elm_geometry$Vector2d$fromComponents(
+					ianmackenzie$elm_geometry$Point2d$coordinates(point))));
+	});
+var ianmackenzie$elm_geometry$Point2d$fromCoordinatesIn = F2(
+	function (frame, localCoordinates) {
+		return A2(
+			ianmackenzie$elm_geometry$Point2d$placeIn,
+			frame,
+			ianmackenzie$elm_geometry$Point2d$fromCoordinates(localCoordinates));
+	});
+var ianmackenzie$elm_geometry$Rectangle2d$axes = function (_n0) {
+	var rectangle = _n0.a;
+	return rectangle.axes;
+};
+var ianmackenzie$elm_geometry$Rectangle2d$dimensions = function (_n0) {
+	var rectangle = _n0.a;
+	return rectangle.dimensions;
+};
+var ianmackenzie$elm_geometry$Rectangle2d$vertices = function (rectangle) {
+	var localFrame = ianmackenzie$elm_geometry$Rectangle2d$axes(rectangle);
+	var _n0 = ianmackenzie$elm_geometry$Rectangle2d$dimensions(rectangle);
+	var width = _n0.a;
+	var height = _n0.b;
+	var halfHeight = height / 2;
+	var halfWidth = width / 2;
+	return {
+		bottomLeft: A2(
+			ianmackenzie$elm_geometry$Point2d$fromCoordinatesIn,
+			localFrame,
+			_Utils_Tuple2(-halfWidth, -halfHeight)),
+		bottomRight: A2(
+			ianmackenzie$elm_geometry$Point2d$fromCoordinatesIn,
+			localFrame,
+			_Utils_Tuple2(halfWidth, -halfHeight)),
+		topLeft: A2(
+			ianmackenzie$elm_geometry$Point2d$fromCoordinatesIn,
+			localFrame,
+			_Utils_Tuple2(-halfWidth, halfHeight)),
+		topRight: A2(
+			ianmackenzie$elm_geometry$Point2d$fromCoordinatesIn,
+			localFrame,
+			_Utils_Tuple2(halfWidth, halfHeight))
+	};
+};
+var ianmackenzie$elm_geometry$Rectangle2d$toPolygon = function (rectangle) {
+	var _n0 = ianmackenzie$elm_geometry$Rectangle2d$vertices(rectangle);
+	var bottomLeft = _n0.bottomLeft;
+	var bottomRight = _n0.bottomRight;
+	var topRight = _n0.topRight;
+	var topLeft = _n0.topLeft;
+	return ianmackenzie$elm_geometry$Polygon2d$singleLoop(
+		_List_fromArray(
+			[bottomLeft, bottomRight, topRight, topLeft]));
+};
+var ianmackenzie$elm_geometry$Frame2d$originPoint = function (_n0) {
+	var frame = _n0.a;
+	return frame.originPoint;
+};
+var ianmackenzie$elm_geometry$Frame2d$xDirection = function (_n0) {
+	var frame = _n0.a;
+	return frame.xDirection;
+};
+var ianmackenzie$elm_geometry$Frame2d$yDirection = function (_n0) {
+	var frame = _n0.a;
+	return frame.yDirection;
+};
+var ianmackenzie$elm_geometry$Frame2d$translateBy = F2(
+	function (vector, frame) {
+		return ianmackenzie$elm_geometry$Frame2d$unsafe(
+			{
+				originPoint: A2(
+					ianmackenzie$elm_geometry$Point2d$translateBy,
+					vector,
+					ianmackenzie$elm_geometry$Frame2d$originPoint(frame)),
+				xDirection: ianmackenzie$elm_geometry$Frame2d$xDirection(frame),
+				yDirection: ianmackenzie$elm_geometry$Frame2d$yDirection(frame)
+			});
+	});
+var ianmackenzie$elm_geometry$Rectangle2d$translateBy = F2(
+	function (displacement, rectangle) {
+		return ianmackenzie$elm_geometry$Geometry$Types$Rectangle2d(
+			{
+				axes: A2(
+					ianmackenzie$elm_geometry$Frame2d$translateBy,
+					displacement,
+					ianmackenzie$elm_geometry$Rectangle2d$axes(rectangle)),
+				dimensions: ianmackenzie$elm_geometry$Rectangle2d$dimensions(rectangle)
+			});
+	});
+var ianmackenzie$elm_geometry$Vector2d$scaleBy = F2(
+	function (scale, vector) {
+		var _n0 = ianmackenzie$elm_geometry$Vector2d$components(vector);
+		var x = _n0.a;
+		var y = _n0.b;
+		return ianmackenzie$elm_geometry$Vector2d$fromComponents(
+			_Utils_Tuple2(x * scale, y * scale));
+	});
+var author$project$Singularis$View$Word$square = F2(
+	function (_n0, pos) {
+		var scale = _n0.scale;
+		var size = _n0.size;
+		var v = A2(
+			ianmackenzie$elm_geometry$Vector2d$scaleBy,
+			scale,
+			ianmackenzie$elm_geometry$Vector2d$fromComponents(pos));
+		var one = ianmackenzie$elm_geometry$Point2d$fromCoordinates(
+			_Utils_Tuple2(size * scale, size * scale));
+		return ianmackenzie$elm_geometry$Rectangle2d$toPolygon(
+			A2(
+				ianmackenzie$elm_geometry$Rectangle2d$translateBy,
+				v,
+				A2(ianmackenzie$elm_geometry$Rectangle2d$from, ianmackenzie$elm_geometry$Point2d$origin, one)));
+	});
+var elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
 var elm$core$List$repeatHelp = F3(
 	function (result, n, value) {
 		repeatHelp:
@@ -15052,6 +15289,506 @@ var elm$core$List$repeat = F2(
 	function (n, value) {
 		return A3(elm$core$List$repeatHelp, _List_Nil, n, value);
 	});
+var icidasset$elm_binary$Binary$Bits = function (a) {
+	return {$: 'Bits', a: a};
+};
+var icidasset$elm_binary$Binary$ensureSize = F2(
+	function (size, _n0) {
+		var bits = _n0.a;
+		var currentLength = elm$core$List$length(bits);
+		return _Utils_eq(currentLength, size) ? icidasset$elm_binary$Binary$Bits(bits) : ((_Utils_cmp(currentLength, size) > 0) ? icidasset$elm_binary$Binary$Bits(
+			A2(elm$core$List$drop, currentLength - size, bits)) : icidasset$elm_binary$Binary$Bits(
+			_Utils_ap(
+				A2(elm$core$List$repeat, size - currentLength, false),
+				bits)));
+	});
+var icidasset$elm_binary$Binary$fromDecimal_ = F2(
+	function (acc, n) {
+		fromDecimal_:
+		while (true) {
+			var _n0 = _Utils_Tuple2((n / 2) | 0, n % 2);
+			var x = _n0.a;
+			var bit = _n0.b;
+			var bits = A2(
+				elm$core$List$cons,
+				A2(elm$core$Basics$modBy, 2, bit),
+				acc);
+			if (x > 0) {
+				var $temp$acc = bits,
+					$temp$n = x;
+				acc = $temp$acc;
+				n = $temp$n;
+				continue fromDecimal_;
+			} else {
+				return bits;
+			}
+		}
+	});
+var icidasset$elm_binary$Binary$ifThenElse = F3(
+	function (bool, a, b) {
+		return bool ? a : b;
+	});
+var icidasset$elm_binary$Binary$fromIntegers = A2(
+	elm$core$Basics$composeR,
+	elm$core$List$map(
+		function (i) {
+			return A3(icidasset$elm_binary$Binary$ifThenElse, i <= 0, false, true);
+		}),
+	icidasset$elm_binary$Binary$Bits);
+var icidasset$elm_binary$Binary$fromDecimal = A2(
+	elm$core$Basics$composeR,
+	icidasset$elm_binary$Binary$fromDecimal_(_List_Nil),
+	icidasset$elm_binary$Binary$fromIntegers);
+var icidasset$elm_binary$Binary$toIntegers = function (_n0) {
+	var bits = _n0.a;
+	return A2(
+		elm$core$List$map,
+		function (b) {
+			return A3(icidasset$elm_binary$Binary$ifThenElse, b, 1, 0);
+		},
+		bits);
+};
+var author$project$Singularis$View$Word$numberToSquares = F3(
+	function (num, scale, _n0) {
+		var x = _n0.a;
+		var y = _n0.b;
+		var _n1 = function (list) {
+			if ((((((((list.b && list.b.b) && list.b.b.b) && list.b.b.b.b) && list.b.b.b.b.b) && list.b.b.b.b.b.b) && list.b.b.b.b.b.b.b) && list.b.b.b.b.b.b.b.b) && (!list.b.b.b.b.b.b.b.b.b)) {
+				var a = list.a;
+				var _n9 = list.b;
+				var b = _n9.a;
+				var _n10 = _n9.b;
+				var c = _n10.a;
+				var _n11 = _n10.b;
+				var d = _n11.a;
+				var _n12 = _n11.b;
+				var e = _n12.a;
+				var _n13 = _n12.b;
+				var f = _n13.a;
+				var _n14 = _n13.b;
+				var g = _n14.a;
+				var _n15 = _n14.b;
+				var h = _n15.a;
+				return _Utils_Tuple2(
+					_Utils_Tuple2(
+						_Utils_Tuple2(a === 1, b === 1),
+						_Utils_Tuple2(c === 1, d === 1)),
+					_Utils_Tuple2(
+						_Utils_Tuple2(e === 1, f === 1),
+						_Utils_Tuple2(g === 1, h === 1)));
+			} else {
+				return _Utils_Tuple2(
+					_Utils_Tuple2(
+						_Utils_Tuple2(false, false),
+						_Utils_Tuple2(false, false)),
+					_Utils_Tuple2(
+						_Utils_Tuple2(false, false),
+						_Utils_Tuple2(false, false)));
+			}
+		}(
+			icidasset$elm_binary$Binary$toIntegers(
+				A2(
+					icidasset$elm_binary$Binary$ensureSize,
+					8,
+					icidasset$elm_binary$Binary$fromDecimal(num))));
+		var _n2 = _n1.a;
+		var _n3 = _n2.a;
+		var _n4 = _n2.b;
+		var b5 = _n4.b;
+		var _n5 = _n1.b;
+		var _n6 = _n5.a;
+		var b4 = _n6.a;
+		var b3 = _n6.b;
+		var _n7 = _n5.b;
+		var b2 = _n7.a;
+		var b1 = _n7.b;
+		return elm$core$List$concat(
+			_List_fromArray(
+				[
+					b1 ? elm$core$List$singleton(
+					A2(
+						author$project$Singularis$View$Word$square,
+						{scale: scale, size: 1 / 4},
+						_Utils_Tuple2(x + (1 / 16), y + (1 / 16)))) : _List_Nil,
+					b2 ? elm$core$List$singleton(
+					A2(
+						author$project$Singularis$View$Word$square,
+						{scale: scale, size: 1 / 4},
+						_Utils_Tuple2(x + (3 / 16), y + (3 / 16)))) : _List_Nil,
+					b3 ? elm$core$List$singleton(
+					A2(
+						author$project$Singularis$View$Word$square,
+						{scale: scale, size: 1 / 8},
+						_Utils_Tuple2(x + (1 / 16), y + (1 / 16)))) : _List_Nil,
+					b4 ? elm$core$List$singleton(
+					A2(
+						author$project$Singularis$View$Word$square,
+						{scale: scale, size: 1 / 16},
+						_Utils_Tuple2(x + (15 / 16), y + (15 / 16)))) : _List_Nil,
+					b5 ? elm$core$List$singleton(
+					A2(
+						author$project$Singularis$View$Word$square,
+						{scale: scale, size: 1 / 16},
+						_Utils_Tuple2(x + (1 / 16), y + (1 / 16)))) : _List_Nil
+				]));
+	});
+var author$project$Singularis$View$Word$view = F2(
+	function (scale, _n0) {
+		var _n1 = _n0.a;
+		var a = _n1.a;
+		var b = _n1.b;
+		var _n2 = _n0.b;
+		var c = _n2.a;
+		var d = _n2.b;
+		return mdgriffith$elm_ui$Element$html(
+			A2(
+				elm_community$typed_svg$TypedSvg$svg,
+				_List_fromArray(
+					[
+						elm_community$typed_svg$TypedSvg$Attributes$width(
+						elm_community$typed_svg$TypedSvg$Types$px(scale)),
+						elm_community$typed_svg$TypedSvg$Attributes$height(
+						elm_community$typed_svg$TypedSvg$Types$px(scale))
+					]),
+				A2(
+					elm$core$List$map,
+					ianmackenzie$elm_geometry_svg$Geometry$Svg$polygon2d(
+						_List_fromArray(
+							[
+								elm_community$typed_svg$TypedSvg$Attributes$stroke(avh4$elm_color$Color$black),
+								elm_community$typed_svg$TypedSvg$Attributes$noFill
+							])),
+					elm$core$List$concat(
+						_List_fromArray(
+							[
+								_List_fromArray(
+								[
+									A2(
+									author$project$Singularis$View$Word$square,
+									{scale: scale, size: 1},
+									_Utils_Tuple2(0, 0)),
+									A2(
+									author$project$Singularis$View$Word$square,
+									{scale: scale, size: 3 / 4},
+									_Utils_Tuple2(1 / 8, 1 / 8)),
+									A2(
+									author$project$Singularis$View$Word$square,
+									{scale: scale, size: 1 / 2},
+									_Utils_Tuple2(1 / 4, 1 / 4))
+								]),
+								A3(
+								author$project$Singularis$View$Word$numberToSquares,
+								a,
+								scale,
+								_Utils_Tuple2(0, 0)),
+								A3(
+								author$project$Singularis$View$Word$numberToSquares,
+								b,
+								scale,
+								_Utils_Tuple2(1 / 2, 0)),
+								A3(
+								author$project$Singularis$View$Word$numberToSquares,
+								c,
+								scale,
+								_Utils_Tuple2(0, 1 / 2)),
+								A3(
+								author$project$Singularis$View$Word$numberToSquares,
+								d,
+								scale,
+								_Utils_Tuple2(1 / 2, 1 / 2))
+							])))));
+	});
+var mdgriffith$elm_ui$Internal$Model$Top = {$: 'Top'};
+var mdgriffith$elm_ui$Element$alignTop = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$Top);
+var author$project$Singularis$View$Book$image = function (size) {
+	return A2(
+		elm$core$Basics$composeL,
+		mdgriffith$elm_ui$Element$el(
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$height(
+					mdgriffith$elm_ui$Element$px(86)),
+					mdgriffith$elm_ui$Element$width(
+					mdgriffith$elm_ui$Element$px(86)),
+					mdgriffith$elm_ui$Element$alignLeft,
+					mdgriffith$elm_ui$Element$alignTop
+				])),
+		author$project$Singularis$View$Word$view(size));
+};
+var mdgriffith$elm_ui$Internal$Flag$padding = mdgriffith$elm_ui$Internal$Flag$flag(2);
+var mdgriffith$elm_ui$Internal$Model$PaddingStyle = F5(
+	function (a, b, c, d, e) {
+		return {$: 'PaddingStyle', a: a, b: b, c: c, d: d, e: e};
+	});
+var mdgriffith$elm_ui$Element$padding = function (x) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$padding,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+			'p-' + elm$core$String$fromInt(x),
+			x,
+			x,
+			x,
+			x));
+};
+var author$project$Singularis$View$Book$text = function (_n0) {
+	var _n1 = _n0.a;
+	var a = _n1.a;
+	var b = _n1.b;
+	var _n2 = _n0.b;
+	var c = _n2.a;
+	var d = _n2.b;
+	return A2(
+		mdgriffith$elm_ui$Element$column,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$height(
+				mdgriffith$elm_ui$Element$px(86)),
+				mdgriffith$elm_ui$Element$spaceEvenly,
+				mdgriffith$elm_ui$Element$Border$width(1),
+				mdgriffith$elm_ui$Element$padding(2),
+				mdgriffith$elm_ui$Element$alignLeft,
+				mdgriffith$elm_ui$Element$alignTop
+			]),
+		A2(
+			elm$core$List$map,
+			A2(
+				elm$core$Basics$composeR,
+				icidasset$elm_binary$Binary$fromDecimal,
+				A2(
+					elm$core$Basics$composeR,
+					icidasset$elm_binary$Binary$ensureSize(8),
+					A2(
+						elm$core$Basics$composeR,
+						icidasset$elm_binary$Binary$toIntegers,
+						A2(
+							elm$core$Basics$composeR,
+							elm$core$List$map(elm$core$String$fromInt),
+							A2(elm$core$Basics$composeR, elm$core$String$concat, mdgriffith$elm_ui$Element$text))))),
+			_List_fromArray(
+				[a, b, c, d])));
+};
+var elm$core$String$filter = _String_filter;
+var elm$core$String$toUpper = _String_toUpper;
+var elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2(elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return elm$core$List$reverse(
+			A3(elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _n0 = _Utils_Tuple2(n, list);
+			_n0$1:
+			while (true) {
+				_n0$5:
+				while (true) {
+					if (!_n0.b.b) {
+						return list;
+					} else {
+						if (_n0.b.b.b) {
+							switch (_n0.a) {
+								case 1:
+									break _n0$1;
+								case 2:
+									var _n2 = _n0.b;
+									var x = _n2.a;
+									var _n3 = _n2.b;
+									var y = _n3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_n0.b.b.b.b) {
+										var _n4 = _n0.b;
+										var x = _n4.a;
+										var _n5 = _n4.b;
+										var y = _n5.a;
+										var _n6 = _n5.b;
+										var z = _n6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _n0$5;
+									}
+								default:
+									if (_n0.b.b.b.b && _n0.b.b.b.b.b) {
+										var _n7 = _n0.b;
+										var x = _n7.a;
+										var _n8 = _n7.b;
+										var y = _n8.a;
+										var _n9 = _n8.b;
+										var z = _n9.a;
+										var _n10 = _n9.b;
+										var w = _n10.a;
+										var tl = _n10.b;
+										return (ctr > 1000) ? A2(
+											elm$core$List$cons,
+											x,
+											A2(
+												elm$core$List$cons,
+												y,
+												A2(
+													elm$core$List$cons,
+													z,
+													A2(
+														elm$core$List$cons,
+														w,
+														A2(elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											elm$core$List$cons,
+											x,
+											A2(
+												elm$core$List$cons,
+												y,
+												A2(
+													elm$core$List$cons,
+													z,
+													A2(
+														elm$core$List$cons,
+														w,
+														A3(elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _n0$5;
+									}
+							}
+						} else {
+							if (_n0.a === 1) {
+								break _n0$1;
+							} else {
+								break _n0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _n1 = _n0.b;
+			var x = _n1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var elm$core$List$take = F2(
+	function (n, list) {
+		return A3(elm$core$List$takeFast, 0, n, list);
+	});
+var elm_community$list_extra$List$Extra$groupsOfWithStep = F3(
+	function (size, step, xs) {
+		var xs_ = A2(elm$core$List$drop, step, xs);
+		var thisGroup = A2(elm$core$List$take, size, xs);
+		var okayLength = _Utils_eq(
+			size,
+			elm$core$List$length(thisGroup));
+		var okayArgs = (size > 0) && (step > 0);
+		return (okayArgs && okayLength) ? A2(
+			elm$core$List$cons,
+			thisGroup,
+			A3(elm_community$list_extra$List$Extra$groupsOfWithStep, size, step, xs_)) : _List_Nil;
+	});
+var elm_community$list_extra$List$Extra$groupsOf = F2(
+	function (size, xs) {
+		return A3(elm_community$list_extra$List$Extra$groupsOfWithStep, size, size, xs);
+	});
+var mdgriffith$elm_ui$Internal$Model$Paragraph = {$: 'Paragraph'};
+var mdgriffith$elm_ui$Element$paragraph = F2(
+	function (attrs, children) {
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asParagraph,
+			mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Internal$Model$Describe(mdgriffith$elm_ui$Internal$Model$Paragraph),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$spacing(5),
+						attrs))),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
+var author$project$Singularis$View$Book$view = A2(
+	elm$core$Basics$composeR,
+	elm$core$String$toUpper,
+	A2(
+		elm$core$Basics$composeR,
+		elm$core$String$filter(elm$core$Char$isUpper),
+		A2(
+			elm$core$Basics$composeR,
+			elm$core$String$toList,
+			A2(
+				elm$core$Basics$composeR,
+				elm$core$List$map(elm$core$Char$toCode),
+				A2(
+					elm$core$Basics$composeR,
+					elm_community$list_extra$List$Extra$groupsOf(4),
+					A2(
+						elm$core$Basics$composeR,
+						elm$core$List$filterMap(
+							function (list) {
+								if ((((list.b && list.b.b) && list.b.b.b) && list.b.b.b.b) && (!list.b.b.b.b.b)) {
+									var a = list.a;
+									var _n1 = list.b;
+									var b = _n1.a;
+									var _n2 = _n1.b;
+									var c = _n2.a;
+									var _n3 = _n2.b;
+									var d = _n3.a;
+									return elm$core$Maybe$Just(
+										_Utils_Tuple2(
+											_Utils_Tuple2(a, b),
+											_Utils_Tuple2(c, d)));
+								} else {
+									return elm$core$Maybe$Nothing;
+								}
+							}),
+						A2(
+							elm$core$Basics$composeR,
+							elm$core$List$indexedMap(
+								function (i) {
+									return (!A2(elm$core$Basics$modBy, 42, i)) ? author$project$Singularis$View$Book$text : author$project$Singularis$View$Book$image(86);
+								}),
+							mdgriffith$elm_ui$Element$paragraph(
+								_List_fromArray(
+									[
+										mdgriffith$elm_ui$Element$spacing(0),
+										mdgriffith$elm_ui$Element$centerX
+									])))))))));
+var author$project$Singularis$Page$Book$view = function (scale) {
+	return elm$core$Dict$fromList(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'book',
+				author$project$Singularis$View$Book$view('According to all known laws\nof aviation,\n\n  \nthere is no way a bee\nshould be able to fly.\n\n  \nIts wings are too small to get\nits fat little body off the ground.\n\n  \nThe bee, of course, flies anyway\n\n  \nbecause bees don\'t care\nwhat humans think is impossible.\n\n  \nYellow, black. Yellow, black.\nYellow, black. Yellow, black.\n\n  \nOoh, black and yellow!\nLet\'s shake it up a little.\n\n  \nBarry! Breakfast is ready!\n\n  \nOoming!\n\n  \nHang on a second.\n\n  \nHello?\n\n  \n- Barry?\n- Adam?\n\n  \n- Oan you believe this is happening?\n- I can\'t. I\'ll pick you up.\n\n  \nLooking sharp.\n\n  \nUse the stairs. Your father\npaid good money for those.\n\n  \nSorry. I\'m excited.\n\n  \nHere\'s the graduate.\nWe\'re very proud of you, son.\n\n  \nA perfect report card, all B\'s.\n\n  \nVery proud.\n\n  \nMa! I got a thing going here.\n\n  \n- You got lint on your fuzz.\n- Ow! That\'s me!\n\n  \n- Wave to us! We\'ll be in row 118,000.\n- Bye!\n\n  \nBarry, I told you,\nstop flying in the house!\n\n  \n- Hey, Adam.\n- Hey, Barry.\n\n  \n- Is that fuzz gel?\n- A little. Special day, graduation.\n\n  \nNever thought I\'d make it.\n\n  \nThree days grade school,\nthree days high school.\n\n  \nThose were awkward.\n\n  \nThree days college. I\'m glad I took\na day and hitchhiked around the hive.\n\n  \nYou did come back different.\n\n  \n- Hi, Barry.\n- Artie, growing a mustache? Looks good.\n\n  \n- Hear about Frankie?\n- Yeah.\n\n  \n- You going to the funeral?\n- No, I\'m not going.\n\n  \nEverybody knows,\nsting someone, you die.\n\n  \nDon\'t waste it on a squirrel.\nSuch a hothead.\n\n  \nI guess he could have\njust gotten out of the way.\n\n  \nI love this incorporating\nan amusement park into our day.\n\n  \nThat\'s why we don\'t need vacations.\n\n  \nBoy, quite a bit of pomp...\nunder the circumstances.\n\n  \n- Well, Adam, today we are men.\n- We are!\n\n  \n- Bee-men.\n- Amen!\n\n  \nHallelujah!\n\n  \nStudents, faculty, distinguished bees,\n\n  \nplease welcome Dean Buzzwell.\n\n  \nWelcome, New Hive Oity\ngraduating class of...\n\n  \n...9:15.\n\n  \nThat concludes our ceremonies.\n\n  \nAnd begins your career\nat Honex Industries!\n\n  \nWill we pick ourjob today?\n\n  \nI heard it\'s just orientation.\n\n  \nHeads up! Here we go.\n\n  \nKeep your hands and antennas\ninside the tram at all times.\n\n  \n- Wonder what it\'ll be like?\n- A little scary.\n\n  \nWelcome to Honex,\na division of Honesco\n\n  \nand a part of the Hexagon Group.\n\n  \nThis is it!\n\n  \nWow.\n\n  \nWow.'))
+			]));
+};
 var ianmackenzie$elm_geometry$Polygon2d$mapVertices = F3(
 	function (_function, invert, polygon) {
 		var mappedOuterLoop = A2(
@@ -15320,42 +16057,6 @@ var author$project$Singularis$Page$Oracle$onEnter = function (msg) {
 var avh4$elm_color$Color$white = A4(avh4$elm_color$Color$RgbaSpace, 255 / 255, 255 / 255, 255 / 255, 1.0);
 var author$project$Singularis$View$Element$white = mdgriffith$elm_ui$Element$fromRgb(
 	avh4$elm_color$Color$toRgba(avh4$elm_color$Color$white));
-var mdgriffith$elm_ui$Internal$Flag$padding = mdgriffith$elm_ui$Internal$Flag$flag(2);
-var mdgriffith$elm_ui$Internal$Model$PaddingStyle = F5(
-	function (a, b, c, d, e) {
-		return {$: 'PaddingStyle', a: a, b: b, c: c, d: d, e: e};
-	});
-var mdgriffith$elm_ui$Element$padding = function (x) {
-	return A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$padding,
-		A5(
-			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-			'p-' + elm$core$String$fromInt(x),
-			x,
-			x,
-			x,
-			x));
-};
-var mdgriffith$elm_ui$Internal$Model$Paragraph = {$: 'Paragraph'};
-var mdgriffith$elm_ui$Element$paragraph = F2(
-	function (attrs, children) {
-		return A4(
-			mdgriffith$elm_ui$Internal$Model$element,
-			mdgriffith$elm_ui$Internal$Model$asParagraph,
-			mdgriffith$elm_ui$Internal$Model$div,
-			A2(
-				elm$core$List$cons,
-				mdgriffith$elm_ui$Internal$Model$Describe(mdgriffith$elm_ui$Internal$Model$Paragraph),
-				A2(
-					elm$core$List$cons,
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-					A2(
-						elm$core$List$cons,
-						mdgriffith$elm_ui$Element$spacing(5),
-						attrs))),
-			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
-	});
 var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
 var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
 	return A2(
@@ -16821,8 +17522,6 @@ var author$project$Singularis$View$Element$title = function (scale) {
 };
 var mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
 var mdgriffith$elm_ui$Element$alignRight = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$Right);
-var mdgriffith$elm_ui$Internal$Model$Top = {$: 'Top'};
-var mdgriffith$elm_ui$Element$alignTop = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$Top);
 var author$project$Singularis$View$Element$fromMarkdown = F3(
 	function (scale, customs, block) {
 		switch (block.$) {
@@ -20865,7 +21564,8 @@ var author$project$Singularis$view = function (model) {
 										[
 											{name: 'Home', url: '?'},
 											{name: 'Oracle', url: '?page=oracle'},
-											{name: 'Singluarity', url: '?page=ai'}
+											{name: 'Singluarity', url: '?page=ai'},
+											{name: 'Book', url: '?page=book'}
 										])),
 									A2(
 									mdgriffith$elm_ui$Element$el,
@@ -20888,7 +21588,8 @@ var author$project$Singularis$view = function (model) {
 												mdgriffith$elm_ui$Element$Font$family(
 												_List_fromArray(
 													[author$project$Singularis$View$Element$spectralFont, mdgriffith$elm_ui$Element$Font$serif])),
-												mdgriffith$elm_ui$Element$Font$justify
+												mdgriffith$elm_ui$Element$Font$justify,
+												mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
 											]),
 										elm$core$List$concat(
 											_List_fromArray(
@@ -20902,6 +21603,8 @@ var author$project$Singularis$view = function (model) {
 															switch (route.$) {
 																case 'Home':
 																	return author$project$Singularis$Page$Home$view(config.scale);
+																case 'Book':
+																	return author$project$Singularis$Page$Book$view(config.scale);
 																case 'Ai':
 																	var aiModel = route.a;
 																	return A2(
