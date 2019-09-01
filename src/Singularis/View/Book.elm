@@ -5,6 +5,7 @@ import Char
 import Element exposing (Element)
 import Element.Border as Border
 import List.Extra as List
+import Random exposing (Seed)
 import Singularis.View.Word as Word
 import String
 
@@ -41,31 +42,38 @@ text ( ( a, b ), ( c, d ) ) =
             ]
 
 
-view : String -> Element msg
+view : Seed -> String -> Element msg
 view =
-    String.toUpper
-        >> String.filter Char.isUpper
-        >> String.toList
-        >> List.map Char.toCode
-        >> List.groupsOf 4
-        >> List.filterMap
-            (\list ->
-                case list of
-                    [ a, b, c, d ] ->
-                        Just ( ( a, b ), ( c, d ) )
+    Random.step
+        (Random.int 0 41
+            |> Random.map
+                (\offset ->
+                    String.toUpper
+                        >> String.filter Char.isUpper
+                        >> String.toList
+                        >> List.map Char.toCode
+                        >> List.groupsOf 4
+                        >> List.filterMap
+                            (\list ->
+                                case list of
+                                    [ a, b, c, d ] ->
+                                        Just ( ( a, b ), ( c, d ) )
 
-                    _ ->
-                        Nothing
-            )
-        >> List.indexedMap
-            (\i ->
-                if i |> modBy 42 |> (==) 0 then
-                    text
+                                    _ ->
+                                        Nothing
+                            )
+                        >> List.indexedMap
+                            (\i ->
+                                if i + offset |> modBy 42 |> (==) 0 then
+                                    text
 
-                else
-                    image 86
-            )
-        >> Element.paragraph
-            [ Element.spacing <| 0
-            , Element.centerX
-            ]
+                                else
+                                    image 86
+                            )
+                        >> Element.paragraph
+                            [ Element.spacing <| 0
+                            , Element.centerX
+                            ]
+                )
+        )
+        >> Tuple.first

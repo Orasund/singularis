@@ -4,8 +4,8 @@ import Browser.Navigation exposing (Key)
 import Dict
 import Random exposing (Seed)
 import Singularis.Page.Ai as Ai
-import Singularis.Page.Oracle as Oracle
 import Singularis.Page.Error as Error
+import Singularis.Page.Oracle as Oracle
 import Singularis.View.Polygon as Polygon
 import Time exposing (Posix)
 import Url exposing (Url)
@@ -28,6 +28,7 @@ type Route
     | Ai Ai.Model
     | Error Error.Model
     | Book
+    | Codex
 
 
 extractRoute : Config -> Url -> Route
@@ -55,9 +56,12 @@ getPageName input =
 
                             Just "oracle" ->
                                 "Oracle"
-                            
+
                             Just "book" ->
                                 "Book"
+
+                            Just "codex" ->
+                                "Codex"
 
                             _ ->
                                 "Home"
@@ -78,9 +82,12 @@ matchRoute { time, seed } =
 
                     Just "oracle" ->
                         question |> Oracle.init time |> Oracle
-                    
+
                     Just "book" ->
                         Book
+
+                    Just "codex" ->
+                        Codex
 
                     _ ->
                         Home

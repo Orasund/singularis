@@ -7,6 +7,7 @@ import Browser.Navigation as Navigation exposing (Key)
 import Color
 import Dict exposing (Dict)
 import Element
+import Element.Background as Background
 import Element.Font as Font
 import Geometry.Svg as Svg
 import Html exposing (Html, button, div, text)
@@ -17,10 +18,11 @@ import Random exposing (Seed)
 import Singularis.Data.Answer as Answer exposing (list)
 import Singularis.Page as Page exposing (Config, Route(..))
 import Singularis.Page.Ai as Ai
-import Singularis.Page.Home as Home
 import Singularis.Page.Book as Book
-import Singularis.Page.Oracle as Oracle
+import Singularis.Page.Codex as Codex
 import Singularis.Page.Error as Error
+import Singularis.Page.Home as Home
+import Singularis.Page.Oracle as Oracle
 import Singularis.View as View exposing (maxScreenWidth, minScreenWidth)
 import Singularis.View.Answer as Answer
 import Singularis.View.Element as Element
@@ -30,7 +32,7 @@ import Svg.Attributes as Attributes
 import Task
 import Time exposing (Posix)
 import Url exposing (Url)
-import Element.Background as Background
+
 
 type alias State =
     { config : Config
@@ -66,7 +68,7 @@ sizeToScale width _ =
 
 
 getMarkdown : Url -> (Result Error String -> Msg) -> Cmd Msg
-getMarkdown url gotResponse  =
+getMarkdown url gotResponse =
     Http.get
         { url =
             "https://raw.githubusercontent.com/Orasund/"
@@ -133,7 +135,7 @@ validateConfig ({ key, url, time, scale, seed, text } as configBuilder) =
                     }
             in
             Done { config = config, route = url |> Page.extractRoute config }
-        
+
         ( ( Just posix, Just float ), ( Just s, Just (Err err) ) ) ->
             let
                 config : Config
@@ -168,7 +170,7 @@ configUpdate msg config =
                     | seed = Just <| seed
                 }
 
-            GotFile result->
+            GotFile result ->
                 { config
                     | text = Just <| result
                 }
@@ -248,7 +250,8 @@ update msg model =
                                 }
                             , Cmd.none
                             )
-                        Err err->
+
+                        Err err ->
                             ( Done
                                 { state
                                     | route = Error <| err
@@ -285,10 +288,11 @@ view : Model -> Document Msg
 view model =
     { title = "Occultus Singularis"
     , body =
-            List.singleton <|
-                Element.layout
-                    []
-                <| case model of
+        List.singleton <|
+            Element.layout
+                []
+            <|
+                case model of
                     Waiting _ ->
                         Element.none
 
@@ -303,59 +307,63 @@ view model =
                                 , { name = "Oracle", url = "?page=oracle" }
                                 , { name = "Singluarity", url = "?page=ai" }
                                 , { name = "Book", url = "?page=book" }
+                                , { name = "Codex", url = "?page=codex"}
                                 ]
-                                , 
-                                    Element.el
-                                        [ Element.width <|
-                                            (Element.fill
-                                                |> Element.maximum (round <|
-                                                    maxScreenWidth)
+                            , Element.el
+                                [ Element.width <|
+                                    (Element.fill
+                                        |> Element.maximum
+                                            (round <|
+                                                maxScreenWidth
                                             )
-                                                
-                                        , Element.centerX
-                                        , Element.padding <|
-                                            round <|
-                                                (*) config.scale <|
-                                                    10
+                                    )
+                                , Element.centerX
+                                , Element.padding <|
+                                    round <|
+                                        (*) config.scale <|
+                                            10
+                                ]
+                              <|
+                                Element.column
+                                    [ Element.spacing 10
+                                    , Font.family <|
+                                        [ Element.spectralFont
+                                        , Font.serif
                                         ]
-                                    <|
-                                        Element.column
-                                            [ Element.spacing 10
-                                            , Font.family <|
-                                                [ Element.spectralFont
-                                                , Font.serif
-                                                ]
-                                            , Font.justify
-                                            , Element.width <| Element.fill
-                                            ]
-                                        <|
-                                            List.concat
-                                                [ config.text
-                                                    |> Block.parse Nothing
-                                                    |> List.map
-                                                        (Element.fromMarkdown config.scale
-                                                            (case route of
-                                                                Home ->
-                                                                    Home.view config.scale
+                                    , Font.justify
+                                    , Element.width <| Element.fill
+                                    ]
+                                <|
+                                    List.concat
+                                        [ config.text
+                                            |> Block.parse Nothing
+                                            |> List.map
+                                                (Element.fromMarkdown config.scale
+                                                    (case route of
+                                                        Home ->
+                                                            Home.view config.scale
 
-                                                                Book ->
-                                                                    Book.view config.scale
+                                                        Book ->
+                                                            Book.view config.scale config.seed
 
-                                                                Ai aiModel ->
-                                                                    Ai.view config.scale aiModel
-                                                                        |> Dict.map
-                                                                            (\_ -> Element.map AiSpecific)
+                                                        Ai aiModel ->
+                                                            Ai.view config.scale aiModel
+                                                                |> Dict.map
+                                                                    (\_ -> Element.map AiSpecific)
 
-                                                                Oracle oracleModel ->
-                                                                    Oracle.view config.scale oracleModel
-                                                                        |> Dict.map
-                                                                            (\_ -> Element.map OracleSpecific)
-                                                                
-                                                                Error error ->
-                                                                    Dict.empty
-                                                            )
-                                                        )
-                                                ]
+                                                        Oracle oracleModel ->
+                                                            Oracle.view config.scale oracleModel
+                                                                |> Dict.map
+                                                                    (\_ -> Element.map OracleSpecific)
+
+                                                        Codex ->
+                                                            Codex.view config.scale
+
+                                                        Error error ->
+                                                            Dict.empty
+                                                    )
+                                                )
+                                        ]
                             ]
     }
 
