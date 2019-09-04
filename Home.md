@@ -41,6 +41,10 @@ some form of intelligence and the ability to recognize themself. So we only see
 intelligence occurs together with spirit. (Note that every living being has a
 spirit)
 
+```
+singularity
+```
+
 > ## Disclaimer
 > 
 > This website is an art project: An artificial religion for people who want to
