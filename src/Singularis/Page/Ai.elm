@@ -187,4 +187,49 @@ view scale { seed, time, symmetry, information, base, infoPerSec, energy, lastCi
                     }
                 ]
           )
+        , ( "singularity"
+          , Element.column [ Element.centerX ]
+                [ Element.html <|
+                    let
+                        size : Float
+                        size =
+                            svgSize * scale
+
+                        center : Point2d
+                        center =
+                            Point2d.fromCoordinates ( size / 2, size / 2 )
+
+                        rectangle : Polygon2d
+                        rectangle =
+                            Polygon.regular
+                                { n = 4
+                                , scale = size * 3 / 16 - 1
+                                , standing = True
+                                }
+                                ( size / 2, size * 5 / 32 - 1 )
+                    in
+                    Svg.svg
+                        [ Attributes.width <| Types.px <| size
+                        , Attributes.height <| Types.px <| size
+                        ]
+                    <|
+                        ([ [ Polygon.regular { n = 12, scale = size / 2, standing = True } ( size / 2, size / 2 )
+                           , Polygon.regular { n = 6, scale = size / 4, standing = True } ( size / 2, size / 2 )
+                           ]
+                         , rectangle
+                            |> List.repeat 6
+                            |> List.indexedMap
+                                (\i -> Polygon2d.rotateAround center (2 * pi * toFloat i / 6))
+                         ]
+                            |> List.concat
+                            |> List.map
+                                (Svg.polygon2d
+                                    [ Attributes.stroke Color.black
+                                    , Attributes.noFill
+                                    ]
+                                )
+                        )
+                , Element.el [ Element.centerX ] <| Element.text "Singularity"
+                ]
+          )
         ]

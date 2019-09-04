@@ -1,4 +1,9 @@
 ## Theory of artificial singularity
+
+```
+singularity
+```
+
 A singularity is the ultimate fusion of matter, spirit and knowledge. A
 singularity defines a being having complete knowledge about everything in
 existence. Generally this singularity should be achievable from any direction.
