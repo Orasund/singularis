@@ -15252,6 +15252,30 @@ var author$project$Singularis$View$Word$square = F2(
 				v,
 				A2(ianmackenzie$elm_geometry$Rectangle2d$from, ianmackenzie$elm_geometry$Point2d$origin, one)));
 	});
+var ianmackenzie$elm_geometry$Polygon2d$mapVertices = F3(
+	function (_function, invert, polygon) {
+		var mappedOuterLoop = A2(
+			elm$core$List$map,
+			_function,
+			ianmackenzie$elm_geometry$Polygon2d$outerLoop(polygon));
+		var mappedInnerLoops = A2(
+			elm$core$List$map,
+			elm$core$List$map(_function),
+			ianmackenzie$elm_geometry$Polygon2d$innerLoops(polygon));
+		return invert ? ianmackenzie$elm_geometry$Geometry$Types$Polygon2d(
+			{
+				innerLoops: A2(elm$core$List$map, elm$core$List$reverse, mappedInnerLoops),
+				outerLoop: elm$core$List$reverse(mappedOuterLoop)
+			}) : ianmackenzie$elm_geometry$Geometry$Types$Polygon2d(
+			{innerLoops: mappedInnerLoops, outerLoop: mappedOuterLoop});
+	});
+var ianmackenzie$elm_geometry$Polygon2d$rotateAround = F2(
+	function (point, angle) {
+		return A2(
+			ianmackenzie$elm_geometry$Polygon2d$mapVertices,
+			A2(ianmackenzie$elm_geometry$Point2d$rotateAround, point, angle),
+			false);
+	});
 var elm$core$List$drop = F2(
 	function (n, list) {
 		drop:
@@ -15354,26 +15378,28 @@ var icidasset$elm_binary$Binary$toIntegers = function (_n0) {
 		bits);
 };
 var author$project$Singularis$View$Word$numberToSquares = F3(
-	function (num, scale, _n0) {
-		var x = _n0.a;
-		var y = _n0.b;
-		var _n1 = function (list) {
+	function (num, _n0, _n1) {
+		var scale = _n0.scale;
+		var rotation = _n0.rotation;
+		var x = _n1.a;
+		var y = _n1.b;
+		var _n2 = function (list) {
 			if ((((((((list.b && list.b.b) && list.b.b.b) && list.b.b.b.b) && list.b.b.b.b.b) && list.b.b.b.b.b.b) && list.b.b.b.b.b.b.b) && list.b.b.b.b.b.b.b.b) && (!list.b.b.b.b.b.b.b.b.b)) {
 				var a = list.a;
-				var _n9 = list.b;
-				var b = _n9.a;
-				var _n10 = _n9.b;
-				var c = _n10.a;
+				var _n10 = list.b;
+				var b = _n10.a;
 				var _n11 = _n10.b;
-				var d = _n11.a;
+				var c = _n11.a;
 				var _n12 = _n11.b;
-				var e = _n12.a;
+				var d = _n12.a;
 				var _n13 = _n12.b;
-				var f = _n13.a;
+				var e = _n13.a;
 				var _n14 = _n13.b;
-				var g = _n14.a;
+				var f = _n14.a;
 				var _n15 = _n14.b;
-				var h = _n15.a;
+				var g = _n15.a;
+				var _n16 = _n15.b;
+				var h = _n16.a;
 				return _Utils_Tuple2(
 					_Utils_Tuple2(
 						_Utils_Tuple2(a === 1, b === 1),
@@ -15396,46 +15422,53 @@ var author$project$Singularis$View$Word$numberToSquares = F3(
 					icidasset$elm_binary$Binary$ensureSize,
 					8,
 					icidasset$elm_binary$Binary$fromDecimal(num))));
-		var _n2 = _n1.a;
 		var _n3 = _n2.a;
-		var _n4 = _n2.b;
-		var b5 = _n4.b;
-		var _n5 = _n1.b;
-		var _n6 = _n5.a;
-		var b4 = _n6.a;
-		var b3 = _n6.b;
-		var _n7 = _n5.b;
-		var b2 = _n7.a;
-		var b1 = _n7.b;
-		return elm$core$List$concat(
-			_List_fromArray(
-				[
-					b1 ? elm$core$List$singleton(
-					A2(
-						author$project$Singularis$View$Word$square,
-						{scale: scale, size: 1 / 4},
-						_Utils_Tuple2(x + (1 / 16), y + (1 / 16)))) : _List_Nil,
-					b2 ? elm$core$List$singleton(
-					A2(
-						author$project$Singularis$View$Word$square,
-						{scale: scale, size: 1 / 4},
-						_Utils_Tuple2(x + (3 / 16), y + (3 / 16)))) : _List_Nil,
-					b3 ? elm$core$List$singleton(
-					A2(
-						author$project$Singularis$View$Word$square,
-						{scale: scale, size: 1 / 8},
-						_Utils_Tuple2(x + (1 / 16), y + (1 / 16)))) : _List_Nil,
-					b4 ? elm$core$List$singleton(
-					A2(
-						author$project$Singularis$View$Word$square,
-						{scale: scale, size: 1 / 16},
-						_Utils_Tuple2(x + (15 / 16), y + (15 / 16)))) : _List_Nil,
-					b5 ? elm$core$List$singleton(
-					A2(
-						author$project$Singularis$View$Word$square,
-						{scale: scale, size: 1 / 16},
-						_Utils_Tuple2(x + (1 / 16), y + (1 / 16)))) : _List_Nil
-				]));
+		var _n4 = _n3.a;
+		var _n5 = _n3.b;
+		var b5 = _n5.b;
+		var _n6 = _n2.b;
+		var _n7 = _n6.a;
+		var b4 = _n7.a;
+		var b3 = _n7.b;
+		var _n8 = _n6.b;
+		var b2 = _n8.a;
+		var b1 = _n8.b;
+		return A2(
+			elm$core$List$map,
+			A2(
+				ianmackenzie$elm_geometry$Polygon2d$rotateAround,
+				ianmackenzie$elm_geometry$Point2d$fromCoordinates(
+					_Utils_Tuple2(scale * ((1 / 4) + x), scale * ((1 / 4) + y))),
+				rotation),
+			elm$core$List$concat(
+				_List_fromArray(
+					[
+						b1 ? elm$core$List$singleton(
+						A2(
+							author$project$Singularis$View$Word$square,
+							{scale: scale, size: 1 / 4},
+							_Utils_Tuple2(x + (1 / 16), y + (1 / 16)))) : _List_Nil,
+						b2 ? elm$core$List$singleton(
+						A2(
+							author$project$Singularis$View$Word$square,
+							{scale: scale, size: 1 / 4},
+							_Utils_Tuple2(x + (3 / 16), y + (3 / 16)))) : _List_Nil,
+						b3 ? elm$core$List$singleton(
+						A2(
+							author$project$Singularis$View$Word$square,
+							{scale: scale, size: 1 / 8},
+							_Utils_Tuple2(x + (1 / 16), y + (1 / 16)))) : _List_Nil,
+						b4 ? elm$core$List$singleton(
+						A2(
+							author$project$Singularis$View$Word$square,
+							{scale: scale, size: 1 / 16},
+							_Utils_Tuple2(x + (6 / 16), y + (6 / 16)))) : _List_Nil,
+						b5 ? elm$core$List$singleton(
+						A2(
+							author$project$Singularis$View$Word$square,
+							{scale: scale, size: 1 / 16},
+							_Utils_Tuple2(x + (1 / 16), y + (1 / 16)))) : _List_Nil
+					])));
 	});
 var author$project$Singularis$View$Word$view = F2(
 	function (scale, _n0) {
@@ -15484,23 +15517,23 @@ var author$project$Singularis$View$Word$view = F2(
 								A3(
 								author$project$Singularis$View$Word$numberToSquares,
 								a,
-								scale,
+								{rotation: 0, scale: scale},
 								_Utils_Tuple2(0, 0)),
 								A3(
 								author$project$Singularis$View$Word$numberToSquares,
 								b,
-								scale,
+								{rotation: (2 * elm$core$Basics$pi) / 4, scale: scale},
 								_Utils_Tuple2(1 / 2, 0)),
 								A3(
 								author$project$Singularis$View$Word$numberToSquares,
-								c,
-								scale,
-								_Utils_Tuple2(0, 1 / 2)),
+								d,
+								{rotation: ((2 * 2) * elm$core$Basics$pi) / 4, scale: scale},
+								_Utils_Tuple2(1 / 2, 1 / 2)),
 								A3(
 								author$project$Singularis$View$Word$numberToSquares,
-								d,
-								scale,
-								_Utils_Tuple2(1 / 2, 1 / 2))
+								c,
+								{rotation: ((3 * 2) * elm$core$Basics$pi) / 4, scale: scale},
+								_Utils_Tuple2(0, 1 / 2))
 							])))));
 	});
 var mdgriffith$elm_ui$Internal$Model$Top = {$: 'Top'};
@@ -16194,30 +16227,6 @@ var author$project$Singularis$Page$Codex$view = function (scale) {
 					elm$random$Random$initialSeed(42)).a)
 			]));
 };
-var ianmackenzie$elm_geometry$Polygon2d$mapVertices = F3(
-	function (_function, invert, polygon) {
-		var mappedOuterLoop = A2(
-			elm$core$List$map,
-			_function,
-			ianmackenzie$elm_geometry$Polygon2d$outerLoop(polygon));
-		var mappedInnerLoops = A2(
-			elm$core$List$map,
-			elm$core$List$map(_function),
-			ianmackenzie$elm_geometry$Polygon2d$innerLoops(polygon));
-		return invert ? ianmackenzie$elm_geometry$Geometry$Types$Polygon2d(
-			{
-				innerLoops: A2(elm$core$List$map, elm$core$List$reverse, mappedInnerLoops),
-				outerLoop: elm$core$List$reverse(mappedOuterLoop)
-			}) : ianmackenzie$elm_geometry$Geometry$Types$Polygon2d(
-			{innerLoops: mappedInnerLoops, outerLoop: mappedOuterLoop});
-	});
-var ianmackenzie$elm_geometry$Polygon2d$rotateAround = F2(
-	function (point, angle) {
-		return A2(
-			ianmackenzie$elm_geometry$Polygon2d$mapVertices,
-			A2(ianmackenzie$elm_geometry$Point2d$rotateAround, point, angle),
-			false);
-	});
 var ianmackenzie$elm_geometry$Polygon2d$translateBy = function (vector) {
 	return A2(
 		ianmackenzie$elm_geometry$Polygon2d$mapVertices,

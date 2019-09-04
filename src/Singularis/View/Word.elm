@@ -29,8 +29,8 @@ square { scale, size } pos =
         |> Rectangle2d.toPolygon
 
 
-numberToSquares : Int -> Float -> ( Float, Float ) -> List Polygon2d
-numberToSquares num scale ( x, y ) =
+numberToSquares : Int -> { scale : Float, rotation : Float } -> ( Float, Float ) -> List Polygon2d
+numberToSquares num { scale, rotation } ( x, y ) =
     let
         ( ( ( _, _ ), ( _, b5 ) ), ( ( b4, b3 ), ( b2, b1 ) ) ) =
             num
@@ -68,7 +68,7 @@ numberToSquares num scale ( x, y ) =
           else
             []
         , if b4 then
-            square { scale = scale, size = 1 / 16 } ( x + 15 / 16, y + 15 / 16 )
+            square { scale = scale, size = 1 / 16 } ( x + 6 / 16, y + 6 / 16 )
                 |> List.singleton
 
           else
@@ -80,6 +80,11 @@ numberToSquares num scale ( x, y ) =
           else
             []
         ]
+        |> List.map
+            (Polygon2d.rotateAround
+                (Point2d.fromCoordinates ( scale * (1 / 4 + x), scale * (1 / 4 + y) ))
+                rotation
+            )
 
 
 view : Float -> ( ( Int, Int ), ( Int, Int ) ) -> Element msg
@@ -94,10 +99,10 @@ view scale ( ( a, b ), ( c, d ) ) =
                , square { scale = scale, size = 3 / 4 } ( 1 / 8, 1 / 8 )
                , square { scale = scale, size = 1 / 2 } ( 1 / 4, 1 / 4 )
                ]
-             , numberToSquares a scale ( 0, 0 )
-             , numberToSquares b scale ( 1 / 2, 0 )
-             , numberToSquares c scale ( 0, 1 / 2 )
-             , numberToSquares d scale ( 1 / 2, 1 / 2 )
+             , numberToSquares a { scale = scale, rotation = 0 } ( 0, 0 )
+             , numberToSquares b { scale = scale, rotation = 2 * pi / 4 } ( 1 / 2, 0 )
+             , numberToSquares d { scale = scale, rotation = 2 * 2 * pi / 4 } ( 1 / 2, 1 / 2 )
+             , numberToSquares c { scale = scale, rotation = 3 * 2 * pi / 4 } ( 0, 1 / 2 )
              ]
                 |> List.concat
                 |> List.map
