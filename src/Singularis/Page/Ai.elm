@@ -1,14 +1,25 @@
 module Singularis.Page.Ai exposing (Model, Msg, init, subscriptions, update, view)
 
+import Color
 import Dict exposing (Dict)
 import Element exposing (Element)
 import Element.Background as Background
 import Element.Input as Input
+import Geometry.Svg as Svg
+import Point2d exposing (Point2d)
+import Polygon2d exposing (Polygon2d)
 import Random exposing (Seed)
 import Singularis.Data exposing (maxInformation)
+import Singularis.View exposing (svgSize)
 import Singularis.View.Ai as Ai
 import Singularis.View.Element as Element
+import Singularis.View.Polygon as Polygon
 import Time
+import TypedSvg as Svg
+import TypedSvg.Attributes as Attributes
+import TypedSvg.Core exposing (Svg)
+import TypedSvg.Types as Types
+import Vector2d exposing (Vector2d)
 
 
 type alias Model =

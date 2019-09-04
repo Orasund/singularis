@@ -14487,6 +14487,83 @@ var author$project$Singularis$View$Element$subsection = function (scale) {
 	return author$project$Singularis$View$Element$heading(
 		elm$core$Basics$round(scale * 30));
 };
+var elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2(elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3(elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
+var ianmackenzie$elm_geometry$Polygon2d$mapVertices = F3(
+	function (_function, invert, polygon) {
+		var mappedOuterLoop = A2(
+			elm$core$List$map,
+			_function,
+			ianmackenzie$elm_geometry$Polygon2d$outerLoop(polygon));
+		var mappedInnerLoops = A2(
+			elm$core$List$map,
+			elm$core$List$map(_function),
+			ianmackenzie$elm_geometry$Polygon2d$innerLoops(polygon));
+		return invert ? ianmackenzie$elm_geometry$Geometry$Types$Polygon2d(
+			{
+				innerLoops: A2(elm$core$List$map, elm$core$List$reverse, mappedInnerLoops),
+				outerLoop: elm$core$List$reverse(mappedOuterLoop)
+			}) : ianmackenzie$elm_geometry$Geometry$Types$Polygon2d(
+			{innerLoops: mappedInnerLoops, outerLoop: mappedOuterLoop});
+	});
+var ianmackenzie$elm_geometry$Polygon2d$rotateAround = F2(
+	function (point, angle) {
+		return A2(
+			ianmackenzie$elm_geometry$Polygon2d$mapVertices,
+			A2(ianmackenzie$elm_geometry$Point2d$rotateAround, point, angle),
+			false);
+	});
+var ianmackenzie$elm_geometry$Polygon2d$translateBy = function (vector) {
+	return A2(
+		ianmackenzie$elm_geometry$Polygon2d$mapVertices,
+		ianmackenzie$elm_geometry$Point2d$translateBy(vector),
+		false);
+};
+var author$project$Singularis$View$Polygon$regular = F2(
+	function (_n0, _n1) {
+		var n = _n0.n;
+		var scale = _n0.scale;
+		var standing = _n0.standing;
+		var x = _n1.a;
+		var y = _n1.b;
+		var origin = ianmackenzie$elm_geometry$Vector2d$fromComponents(
+			_Utils_Tuple2(x, y));
+		var angle = (2 * elm$core$Basics$pi) / n;
+		return A2(
+			ianmackenzie$elm_geometry$Polygon2d$translateBy,
+			origin,
+			(standing ? A2(ianmackenzie$elm_geometry$Polygon2d$rotateAround, ianmackenzie$elm_geometry$Point2d$origin, (angle * 1) / 2) : elm$core$Basics$identity)(
+				ianmackenzie$elm_geometry$Polygon2d$singleLoop(
+					A2(
+						elm$core$List$indexedMap,
+						function (i) {
+							return A2(ianmackenzie$elm_geometry$Point2d$rotateAround, ianmackenzie$elm_geometry$Point2d$origin, (elm$core$Basics$pi / 2) + (angle * i));
+						},
+						A2(
+							elm$core$List$repeat,
+							n,
+							ianmackenzie$elm_geometry$Point2d$fromCoordinates(
+								_Utils_Tuple2(scale, 0)))))));
+	});
 var mdgriffith$elm_ui$Internal$Model$unstyled = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Unstyled, elm$core$Basics$always);
 var mdgriffith$elm_ui$Element$html = mdgriffith$elm_ui$Internal$Model$unstyled;
 var mdgriffith$elm_ui$Element$spaceEvenly = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$spacing, mdgriffith$elm_ui$Internal$Style$classes.spaceEvenly);
@@ -15038,6 +15115,68 @@ var author$project$Singularis$Page$Ai$view = F2(
 									onChange: A2(elm$core$Basics$composeR, elm$core$Basics$round, author$project$Singularis$Page$Ai$EnergyChanged),
 									value: energy
 								})
+							]))),
+					_Utils_Tuple2(
+					'singularity',
+					A2(
+						mdgriffith$elm_ui$Element$column,
+						_List_fromArray(
+							[mdgriffith$elm_ui$Element$centerX]),
+						_List_fromArray(
+							[
+								mdgriffith$elm_ui$Element$html(
+								function () {
+									var size = author$project$Singularis$View$svgSize * scale;
+									var rectangle = A2(
+										author$project$Singularis$View$Polygon$regular,
+										{n: 4, scale: ((size * 3) / 16) - 1, standing: true},
+										_Utils_Tuple2(size / 2, ((size * 5) / 32) - 1));
+									var center = ianmackenzie$elm_geometry$Point2d$fromCoordinates(
+										_Utils_Tuple2(size / 2, size / 2));
+									return A2(
+										elm_community$typed_svg$TypedSvg$svg,
+										_List_fromArray(
+											[
+												elm_community$typed_svg$TypedSvg$Attributes$width(
+												elm_community$typed_svg$TypedSvg$Types$px(size)),
+												elm_community$typed_svg$TypedSvg$Attributes$height(
+												elm_community$typed_svg$TypedSvg$Types$px(size))
+											]),
+										A2(
+											elm$core$List$map,
+											ianmackenzie$elm_geometry_svg$Geometry$Svg$polygon2d(
+												_List_fromArray(
+													[
+														elm_community$typed_svg$TypedSvg$Attributes$stroke(avh4$elm_color$Color$black),
+														elm_community$typed_svg$TypedSvg$Attributes$noFill
+													])),
+											elm$core$List$concat(
+												_List_fromArray(
+													[
+														_List_fromArray(
+														[
+															A2(
+															author$project$Singularis$View$Polygon$regular,
+															{n: 12, scale: size / 2, standing: true},
+															_Utils_Tuple2(size / 2, size / 2)),
+															A2(
+															author$project$Singularis$View$Polygon$regular,
+															{n: 6, scale: size / 4, standing: true},
+															_Utils_Tuple2(size / 2, size / 2))
+														]),
+														A2(
+														elm$core$List$indexedMap,
+														function (i) {
+															return A2(ianmackenzie$elm_geometry$Polygon2d$rotateAround, center, ((2 * elm$core$Basics$pi) * i) / 6);
+														},
+														A2(elm$core$List$repeat, 6, rectangle))
+													]))));
+								}()),
+								A2(
+								mdgriffith$elm_ui$Element$el,
+								_List_fromArray(
+									[mdgriffith$elm_ui$Element$centerX]),
+								mdgriffith$elm_ui$Element$text('Singularity'))
 							])))
 				]));
 	});
@@ -15252,30 +15391,6 @@ var author$project$Singularis$View$Word$square = F2(
 				v,
 				A2(ianmackenzie$elm_geometry$Rectangle2d$from, ianmackenzie$elm_geometry$Point2d$origin, one)));
 	});
-var ianmackenzie$elm_geometry$Polygon2d$mapVertices = F3(
-	function (_function, invert, polygon) {
-		var mappedOuterLoop = A2(
-			elm$core$List$map,
-			_function,
-			ianmackenzie$elm_geometry$Polygon2d$outerLoop(polygon));
-		var mappedInnerLoops = A2(
-			elm$core$List$map,
-			elm$core$List$map(_function),
-			ianmackenzie$elm_geometry$Polygon2d$innerLoops(polygon));
-		return invert ? ianmackenzie$elm_geometry$Geometry$Types$Polygon2d(
-			{
-				innerLoops: A2(elm$core$List$map, elm$core$List$reverse, mappedInnerLoops),
-				outerLoop: elm$core$List$reverse(mappedOuterLoop)
-			}) : ianmackenzie$elm_geometry$Geometry$Types$Polygon2d(
-			{innerLoops: mappedInnerLoops, outerLoop: mappedOuterLoop});
-	});
-var ianmackenzie$elm_geometry$Polygon2d$rotateAround = F2(
-	function (point, angle) {
-		return A2(
-			ianmackenzie$elm_geometry$Polygon2d$mapVertices,
-			A2(ianmackenzie$elm_geometry$Point2d$rotateAround, point, angle),
-			false);
-	});
 var elm$core$List$drop = F2(
 	function (n, list) {
 		drop:
@@ -15296,27 +15411,6 @@ var elm$core$List$drop = F2(
 				}
 			}
 		}
-	});
-var elm$core$List$repeatHelp = F3(
-	function (result, n, value) {
-		repeatHelp:
-		while (true) {
-			if (n <= 0) {
-				return result;
-			} else {
-				var $temp$result = A2(elm$core$List$cons, value, result),
-					$temp$n = n - 1,
-					$temp$value = value;
-				result = $temp$result;
-				n = $temp$n;
-				value = $temp$value;
-				continue repeatHelp;
-			}
-		}
-	});
-var elm$core$List$repeat = F2(
-	function (n, value) {
-		return A3(elm$core$List$repeatHelp, _List_Nil, n, value);
 	});
 var icidasset$elm_binary$Binary$Bits = function (a) {
 	return {$: 'Bits', a: a};
@@ -16227,38 +16321,6 @@ var author$project$Singularis$Page$Codex$view = function (scale) {
 					elm$random$Random$initialSeed(42)).a)
 			]));
 };
-var ianmackenzie$elm_geometry$Polygon2d$translateBy = function (vector) {
-	return A2(
-		ianmackenzie$elm_geometry$Polygon2d$mapVertices,
-		ianmackenzie$elm_geometry$Point2d$translateBy(vector),
-		false);
-};
-var author$project$Singularis$View$Polygon$regular = F2(
-	function (_n0, _n1) {
-		var n = _n0.n;
-		var scale = _n0.scale;
-		var standing = _n0.standing;
-		var x = _n1.a;
-		var y = _n1.b;
-		var origin = ianmackenzie$elm_geometry$Vector2d$fromComponents(
-			_Utils_Tuple2(x, y));
-		var angle = (2 * elm$core$Basics$pi) / n;
-		return A2(
-			ianmackenzie$elm_geometry$Polygon2d$translateBy,
-			origin,
-			(standing ? A2(ianmackenzie$elm_geometry$Polygon2d$rotateAround, ianmackenzie$elm_geometry$Point2d$origin, (angle * 1) / 2) : elm$core$Basics$identity)(
-				ianmackenzie$elm_geometry$Polygon2d$singleLoop(
-					A2(
-						elm$core$List$indexedMap,
-						function (i) {
-							return A2(ianmackenzie$elm_geometry$Point2d$rotateAround, ianmackenzie$elm_geometry$Point2d$origin, (elm$core$Basics$pi / 2) + (angle * i));
-						},
-						A2(
-							elm$core$List$repeat,
-							n,
-							ianmackenzie$elm_geometry$Point2d$fromCoordinates(
-								_Utils_Tuple2(scale, 0)))))));
-	});
 var author$project$Singularis$View$Polygon$view = F2(
 	function (scale, n) {
 		var size = author$project$Singularis$View$svgSize * scale;
