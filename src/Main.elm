@@ -21,11 +21,11 @@ svgSize =
 
 
 planetSize =
-    4
+    8
 
 
 useKeplersModel =
-    True
+    False
 
 
 init : () -> ( Model, Cmd Msg )
@@ -122,11 +122,11 @@ view model =
         []
 
        else
-        [ ( radiusSaturn, 3 )
-        , ( radiusJupiter, 4 )
+        [ ( radiusSaturn, 7 )
+        , ( radiusJupiter, 6 )
         , ( radiusMars, 5 )
-        , ( radiusEarth, 6 )
-        , ( radiusVenus, 7 )
+        , ( radiusEarth, 4 )
+        , ( radiusVenus, 3 )
         ]
       )
         |> List.map (\( radius, n ) -> viewPolygon n radius)
@@ -161,7 +161,7 @@ radiusJupiter =
         Maths.incircleRadiusFromCubeExcircleRadius radiusSaturn
 
     else
-        Maths.incircleRadiusFromPolygonExcircleRadius 3 radiusSaturn
+        Maths.incircleRadiusFromPolygonExcircleRadius 7 radiusSaturn
 
 
 radiusMars =
@@ -169,7 +169,7 @@ radiusMars =
         Maths.incircleRadiusFromTetraederExcircleRadius radiusJupiter
 
     else
-        Maths.incircleRadiusFromPolygonExcircleRadius 4 radiusJupiter
+        Maths.incircleRadiusFromPolygonExcircleRadius 6 radiusJupiter
 
 
 radiusEarth =
@@ -185,7 +185,7 @@ radiusVenus =
         Maths.incircleRadiusFromIcosahedronExcircleRadius radiusEarth
 
     else
-        Maths.incircleRadiusFromPolygonExcircleRadius 6 radiusEarth
+        Maths.incircleRadiusFromPolygonExcircleRadius 4 radiusEarth
 
 
 radiusMercury =
@@ -193,7 +193,7 @@ radiusMercury =
         Maths.incircleRadiusFromOctahedronExcircleRadius radiusVenus
 
     else
-        Maths.incircleRadiusFromPolygonExcircleRadius 7 radiusVenus
+        Maths.incircleRadiusFromPolygonExcircleRadius 3 radiusVenus
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
