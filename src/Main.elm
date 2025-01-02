@@ -1,390 +1,218 @@
-module Singularis exposing (main)
+module Main exposing (..)
 
-import Browser exposing (Document, UrlRequest(..))
-import Browser.Dom as Dom exposing (Viewport)
-import Browser.Events as BrowserEvents
-import Browser.Navigation as Navigation exposing (Key)
-import Color
-import Dict exposing (Dict)
-import Element
-import Element.Background as Background
-import Element.Font as Font
-import Geometry.Svg as Svg
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
-import Http exposing (Error(..))
-import Markdown.Block as Block
-import Random exposing (Seed)
-import Singularis.Data.Answer as Answer exposing (list)
-import Singularis.Page as Page exposing (Config, Route(..))
-import Singularis.Page.Ai as Ai
-import Singularis.Page.Book as Book
-import Singularis.Page.Codex as Codex
-import Singularis.Page.Error as Error
-import Singularis.Page.Home as Home
-import Singularis.Page.Oracle as Oracle
-import Singularis.View as View exposing (maxScreenWidth, minScreenWidth)
-import Singularis.View.Answer as Answer
-import Singularis.View.Element as Element
-import Singularis.View.Polygon as Polygon
-import Svg
-import Svg.Attributes as Attributes
-import Task
-import Time exposing (Posix)
-import Url exposing (Url)
+import Browser
+import Html exposing (Html)
+import Html.Attributes
+import Maths
+import Svg exposing (Svg)
+import Svg.Attributes
 
 
-type alias State =
-    { config : Config
-    , route : Route
-    }
-
-
-type alias ConfigBuilder =
-    { url : Url
-    , key : Key
-    , time : Maybe Posix
-    , scale : Maybe Float
-    , seed : Maybe Seed
-    , text : Maybe (Result Error String)
-    }
-
-
-type Model
-    = Waiting ConfigBuilder
-    | Done State
-
-
-sizeToScale : Int -> Int -> Float
-sizeToScale width _ =
-    if toFloat width > maxScreenWidth then
-        1
-
-    else if toFloat width < minScreenWidth then
-        minScreenWidth / maxScreenWidth
-
-    else
-        toFloat width / maxScreenWidth
-
-
-getMarkdown : Url -> (Result Error String -> Msg) -> Cmd Msg
-getMarkdown url gotResponse =
-    Http.get
-        { url =
-            "https://raw.githubusercontent.com/Orasund/"
-                ++ "singularis/master/"
-                ++ (url |> Page.getPageName)
-                ++ ".md"
-        , expect = Http.expectString gotResponse
-        }
-
-
-init : flags -> Url -> Key -> ( Model, Cmd Msg )
-init _ url key =
-    ( Waiting
-        { url = url
-        , key = key
-        , time = Nothing
-        , scale = Nothing
-        , seed = Nothing
-        , text = Nothing
-        }
-    , Cmd.batch
-        [ Task.perform (WaitingSpecific << GotTime) Time.now
-        , Task.perform
-            (\{ viewport } ->
-                WaitingSpecific <|
-                    GotSize (round viewport.width) (round viewport.height)
-            )
-            Dom.getViewport
-        , Random.generate (WaitingSpecific << GotSeed) Random.independentSeed
-        , getMarkdown url (WaitingSpecific << GotFile)
-        ]
-    )
-
-
-type WaitingMsg
-    = GotTime Posix
-    | GotSize Int Int
-    | GotSeed Seed
-    | GotFile (Result Error String)
+type alias Model =
+    { t : Float }
 
 
 type Msg
-    = OracleSpecific Oracle.Msg
-    | WaitingSpecific WaitingMsg
-    | AiSpecific Ai.Msg
-    | UrlChanged Url
-    | UrlRequested UrlRequest
-    | SizeChanged Int Int
-    | FileChanged (Result Error String)
+    = Tick
 
 
-validateConfig : ConfigBuilder -> Model
-validateConfig ({ key, url, time, scale, seed, text } as configBuilder) =
-    case ( ( time, scale ), ( seed, text ) ) of
-        ( ( Just posix, Just float ), ( Just s, Just (Ok t) ) ) ->
-            let
-                config : Config
-                config =
-                    { key = key
-                    , time = posix
-                    , scale = float
-                    , seed = s
-                    , text = t
-                    }
-            in
-            Done { config = config, route = url |> Page.extractRoute config }
-
-        ( ( Just posix, Just float ), ( Just s, Just (Err err) ) ) ->
-            let
-                config : Config
-                config =
-                    { key = key
-                    , time = posix
-                    , scale = float
-                    , seed = s
-                    , text = ""
-                    }
-            in
-            Done { config = config, route = Error err }
-
-        _ ->
-            Waiting configBuilder
+svgSize =
+    400
 
 
-configUpdate : WaitingMsg -> ConfigBuilder -> Model
-configUpdate msg config =
-    validateConfig <|
-        case msg of
-            GotTime posix ->
-                { config | time = Just posix }
+planetSize =
+    4
 
-            GotSize width height ->
-                { config
-                    | scale = Just <| sizeToScale width height
-                }
 
-            GotSeed seed ->
-                { config
-                    | seed = Just <| seed
-                }
+useKeplersModel =
+    True
 
-            GotFile result ->
-                { config
-                    | text = Just <| result
-                }
+
+init : () -> ( Model, Cmd Msg )
+init () =
+    ( { t = 0 }, Cmd.none )
+
+
+viewCircle : Float -> Svg Msg
+viewCircle radius =
+    Svg.circle
+        [ Svg.Attributes.cx "200"
+        , Svg.Attributes.cy "200"
+        , Svg.Attributes.fill "transparent"
+        , Svg.Attributes.stroke "black"
+        , Svg.Attributes.r (String.fromFloat radius)
+        ]
+        []
+
+
+viewPolygon : Int -> Float -> Svg Msg
+viewPolygon n radius =
+    let
+        angle =
+            Maths.angleBetweenTwoPointsOfPolygon n
+
+        points =
+            List.range 0 (n - 1)
+                |> List.map
+                    (\i ->
+                        fromPolar ( radius, angle * toFloat i )
+                            |> Maths.plus ( svgSize / 2, svgSize / 2 )
+                    )
+
+        path =
+            [ "M"
+            , points
+                |> List.map
+                    (\( x, y ) ->
+                        String.fromFloat x
+                            ++ " "
+                            ++ String.fromFloat y
+                    )
+                |> String.join " L"
+            , " Z"
+            ]
+                |> String.concat
+    in
+    Svg.path
+        [ Svg.Attributes.d path
+        , Svg.Attributes.fill "transparent"
+        , Svg.Attributes.stroke "black"
+        ]
+        []
+
+
+viewPointAt : ( Float, Float ) -> Svg Msg
+viewPointAt ( x, y ) =
+    Svg.circle
+        [ Svg.Attributes.cx (String.fromFloat (200 + x))
+        , Svg.Attributes.cy (String.fromFloat (200 + y))
+        , Svg.Attributes.r (String.fromFloat planetSize)
+        ]
+        []
+
+
+view : Model -> Html Msg
+view model =
+    [ [ --radiusNeptun
+        --, radiusUranus
+        --,
+        radiusSaturn
+      , radiusJupiter
+      , radiusMars
+      , radiusEarth
+      , radiusVenus
+      , radiusMercury
+      ]
+        |> List.concatMap
+            (\radius ->
+                [ viewCircle radius
+                , viewPointAt (fromPolar ( radius, 0 ))
+                ]
+            )
+    , (if useKeplersModel then
+        {--[ --( radiusNeptun, 3 )
+          --, ( radiusUranus, 4 )
+          --,
+          ( radiusSaturn, 6 )
+        , ( radiusJupiter, 3 )
+        , ( radiusMars, 8 )
+        , ( radiusEarth, 6 )
+        , ( radiusVenus, 6 )
+        ]--}
+        []
+
+       else
+        [ ( radiusSaturn, 3 )
+        , ( radiusJupiter, 4 )
+        , ( radiusMars, 5 )
+        , ( radiusEarth, 6 )
+        , ( radiusVenus, 7 )
+        ]
+      )
+        |> List.map (\( radius, n ) -> viewPolygon n radius)
+    ]
+        |> List.concat
+        |> Svg.svg
+            [ Html.Attributes.height svgSize
+            , Html.Attributes.width svgSize
+            ]
+
+
+
+{--radiusNeptun =
+    svgSize
+
+
+radiusUranus =
+    Maths.incircleRadiusFromPolygonExcircleRadius 3 radiusNeptun
+--}
+
+
+radiusSaturn =
+    svgSize / 2 - planetSize
+
+
+
+--Maths.incircleRadiusFromPolygonExcircleRadius 4 radiusUranus
+
+
+radiusJupiter =
+    if useKeplersModel then
+        Maths.incircleRadiusFromCubeExcircleRadius radiusSaturn
+
+    else
+        Maths.incircleRadiusFromPolygonExcircleRadius 3 radiusSaturn
+
+
+radiusMars =
+    if useKeplersModel then
+        Maths.incircleRadiusFromTetraederExcircleRadius radiusJupiter
+
+    else
+        Maths.incircleRadiusFromPolygonExcircleRadius 4 radiusJupiter
+
+
+radiusEarth =
+    if useKeplersModel then
+        Maths.incircleRadiusFromDodecaederExcircleRadius radiusMars
+
+    else
+        Maths.incircleRadiusFromPolygonExcircleRadius 5 radiusMars
+
+
+radiusVenus =
+    if useKeplersModel then
+        Maths.incircleRadiusFromIcosahedronExcircleRadius radiusEarth
+
+    else
+        Maths.incircleRadiusFromPolygonExcircleRadius 6 radiusEarth
+
+
+radiusMercury =
+    if useKeplersModel then
+        Maths.incircleRadiusFromOctahedronExcircleRadius radiusVenus
+
+    else
+        Maths.incircleRadiusFromPolygonExcircleRadius 7 radiusVenus
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    let
-        defaultCase : ( Model, Cmd Msg )
-        defaultCase =
+    case msg of
+        Tick ->
             ( model, Cmd.none )
-    in
-    case model of
-        Waiting config ->
-            case msg of
-                WaitingSpecific waitingMsg ->
-                    ( config |> configUpdate waitingMsg, Cmd.none )
-
-                _ ->
-                    defaultCase
-
-        Done ({ config } as state) ->
-            case ( msg, state.route ) of
-                ( OracleSpecific oracleMsg, Oracle oracleModel ) ->
-                    oracleModel
-                        |> Oracle.update config.key oracleMsg
-                        |> Tuple.mapBoth
-                            (Oracle >> (\route -> Done { state | route = route }))
-                            (Cmd.map OracleSpecific)
-
-                ( OracleSpecific _, _ ) ->
-                    defaultCase
-
-                ( AiSpecific aiMsg, Ai aiModel ) ->
-                    ( Done
-                        { state
-                            | route =
-                                aiModel
-                                    |> Ai.update aiMsg
-                                    |> Ai
-                        }
-                    , Cmd.none
-                    )
-
-                ( AiSpecific _, _ ) ->
-                    defaultCase
-
-                ( UrlChanged url, _ ) ->
-                    init () url config.key
-
-                ( UrlRequested urlRequest, _ ) ->
-                    case urlRequest of
-                        Internal url ->
-                            ( model
-                            , Navigation.pushUrl config.key (Url.toString url)
-                            )
-
-                        External url ->
-                            ( model
-                            , Navigation.load url
-                            )
-
-                ( SizeChanged width height, _ ) ->
-                    ( Done
-                        { state
-                            | config = { config | scale = sizeToScale width height }
-                        }
-                    , Cmd.none
-                    )
-
-                ( FileChanged response, _ ) ->
-                    case response of
-                        Ok text ->
-                            ( Done
-                                { state
-                                    | config = { config | text = text }
-                                }
-                            , Cmd.none
-                            )
-
-                        Err err ->
-                            ( Done
-                                { state
-                                    | route = Error <| err
-                                }
-                            , Cmd.none
-                            )
-
-                ( WaitingSpecific _, _ ) ->
-                    defaultCase
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch <|
-        List.concat
-            [ List.singleton <| BrowserEvents.onResize SizeChanged
-            , case model of
-                Done { route } ->
-                    case route of
-                        Ai aiModel ->
-                            Ai.subscriptions aiModel
-                                |> Sub.map AiSpecific
-                                |> List.singleton
-
-                        _ ->
-                            []
-
-                _ ->
-                    []
-            ]
-
-
-view : Model -> Document Msg
-view model =
-    { title = "Occultus Singularis"
-    , body =
-        List.singleton <|
-            Element.layout
-                []
-            <|
-                case model of
-                    Waiting _ ->
-                        Element.none
-
-                    Done { route, config } ->
-                        Element.column
-                            [ Element.width <| Element.fill
-                            , Element.spacing <| round <| (*) config.scale <| 10
-                            ]
-                        <|
-                            [ Element.menu config.scale <|
-                                [ { name = "Home", url = "?" }
-                                , { name = "Oracle", url = "?page=oracle" }
-                                , { name = "Singluarity", url = "?page=ai" }
-                                , { name = "Book", url = "?page=book" }
-                                , { name = "Codex", url = "?page=codex"}
-                                ]
-                            , Element.el
-                                [ Element.width <|
-                                    (Element.fill
-                                        |> Element.maximum
-                                            (round <|
-                                                maxScreenWidth
-                                            )
-                                    )
-                                , Element.centerX
-                                , Element.padding <|
-                                    round <|
-                                        (*) config.scale <|
-                                            10
-                                ]
-                              <|
-                                Element.column
-                                    [ Element.spacing 10
-                                    , Font.family <|
-                                        [ Element.spectralFont
-                                        , Font.serif
-                                        ]
-                                    , Font.justify
-                                    , Element.width <| Element.fill
-                                    ]
-                                <|
-                                    List.concat
-                                        [ config.text
-                                            |> Block.parse Nothing
-                                            |> List.map
-                                                (Element.fromMarkdown config.scale
-                                                    (case route of
-                                                        Home ->
-                                                            Home.view config.scale
-
-                                                        Book ->
-                                                            Book.view config.scale config.seed
-
-                                                        Ai aiModel ->
-                                                            Ai.view config.scale aiModel
-                                                                |> Dict.map
-                                                                    (\_ -> Element.map AiSpecific)
-
-                                                        Oracle oracleModel ->
-                                                            Oracle.view config.scale oracleModel
-                                                                |> Dict.map
-                                                                    (\_ -> Element.map OracleSpecific)
-
-                                                        Codex ->
-                                                            Codex.view config.scale
-
-                                                        Error error ->
-                                                            Dict.empty
-                                                    )
-                                                )
-                                        ]
-                            ]
-    }
-
-
-onUrlRequest : UrlRequest -> Msg
-onUrlRequest =
-    UrlRequested
-
-
-onUrlChange : Url -> Msg
-onUrlChange =
-    UrlChanged
+    Sub.none
 
 
 main : Program () Model Msg
 main =
-    Browser.application
+    Browser.element
         { init = init
         , view = view
         , update = update
         , subscriptions = subscriptions
-        , onUrlRequest = onUrlRequest
-        , onUrlChange = onUrlChange
         }

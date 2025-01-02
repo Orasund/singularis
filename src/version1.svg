@@ -1,0 +1,25 @@
+<svg height="400" width="400">
+    <circle cx="200" cy="200" fill="transparent" stroke="black" r="196"></circle>
+    <circle cx="396" cy="200" r="4"></circle>
+    <circle cx="200" cy="200" fill="transparent" stroke="black" r="113.16065276116666"></circle>
+    <circle cx="313.16065276116666" cy="200" r="4"></circle>
+    <circle cx="200" cy="200" fill="transparent" stroke="black" r="37.72021758705555"></circle>
+    <circle cx="237.72021758705554" cy="200" r="4"></circle>
+    <circle cx="200" cy="200" fill="transparent" stroke="black" r="29.974539601372225"></circle>
+    <circle cx="229.97453960137221" cy="200" r="4"></circle>
+    <circle cx="200" cy="200" fill="transparent" stroke="black" r="23.81940194911709"></circle>
+    <circle cx="223.8194019491171" cy="200" r="4"></circle>
+    <circle cx="200" cy="200" fill="transparent" stroke="black" r="13.752138127258648"></circle>
+    <circle cx="213.75213812725866" cy="200" r="4"></circle>
+    <path d="M396 200 L200 396 L4 200.00000000000003 L199.99999999999997 4 Z" fill="transparent" stroke="black"></path>
+    <path d="M313.16065276116666 200 L143.4196736194167 298 L143.4196736194166 102.00000000000003 Z" fill="transparent"
+        stroke="black"></path>
+    <path
+        d="M237.72021758705554 200 L218.8601087935278 232.66666666666666 L181.13989120647224 232.66666666666669 L162.27978241294446 200 L181.1398912064722 167.33333333333334 L218.86010879352776 167.33333333333331 Z"
+        fill="transparent" stroke="black"></path>
+    <path
+        d="M229.97453960137221 200 L209.2626421353889 228.5074812108322 L175.750088063925 217.6185923219433 L175.750088063925 182.3814076780567 L209.2626421353889 171.4925187891678 Z"
+        fill="transparent" stroke="black"></path>
+    <path d="M223.8194019491171 200 L200 223.8194019491171 L176.1805980508829 200 L200 176.1805980508829 Z"
+        fill="transparent" stroke="black"></path>
+</svg>
