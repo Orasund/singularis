@@ -6,6 +6,8 @@ import Html.Attributes
 import Maths
 import Svg exposing (Svg)
 import Svg.Attributes
+import Time
+import ZodiacCircle
 
 
 type alias Model =
@@ -17,11 +19,11 @@ type Msg
 
 
 svgSize =
-    400
+    600
 
 
 planetSize =
-    8
+    svgSize / 100
 
 
 useKeplersModel =
@@ -30,14 +32,14 @@ useKeplersModel =
 
 init : () -> ( Model, Cmd Msg )
 init () =
-    ( { t = 0 }, Cmd.none )
+    ( { t = 4200 }, Cmd.none )
 
 
-viewCircle : Float -> Svg Msg
-viewCircle radius =
+viewCircle : ( Float, Float ) -> Float -> Svg Msg
+viewCircle ( x, y ) radius =
     Svg.circle
-        [ Svg.Attributes.cx "200"
-        , Svg.Attributes.cy "200"
+        [ Svg.Attributes.cx (String.fromFloat x)
+        , Svg.Attributes.cy (String.fromFloat y)
         , Svg.Attributes.fill "transparent"
         , Svg.Attributes.stroke "black"
         , Svg.Attributes.r (String.fromFloat radius)
@@ -45,18 +47,18 @@ viewCircle radius =
         []
 
 
-viewPolygon : Int -> Float -> Svg Msg
-viewPolygon n radius =
+viewPolygon : ( Float, Float ) -> { points : Int, radius : Float, rotation : Float } -> Svg Msg
+viewPolygon center args =
     let
         angle =
-            Maths.angleBetweenTwoPointsOfPolygon n
+            Maths.angleBetweenTwoPointsOfPolygon args.points
 
         points =
-            List.range 0 (n - 1)
+            List.range 0 (args.points - 1)
                 |> List.map
                     (\i ->
-                        fromPolar ( radius, angle * toFloat i )
-                            |> Maths.plus ( svgSize / 2, svgSize / 2 )
+                        fromPolar ( args.radius, angle * toFloat i + args.rotation )
+                            |> Maths.plus center
                     )
 
         path =
@@ -81,55 +83,155 @@ viewPolygon n radius =
         []
 
 
-viewPointAt : ( Float, Float ) -> Svg Msg
-viewPointAt ( x, y ) =
+viewPlanetAt : ( Float, Float ) -> Svg Msg
+viewPlanetAt ( x, y ) =
     Svg.circle
-        [ Svg.Attributes.cx (String.fromFloat (200 + x))
-        , Svg.Attributes.cy (String.fromFloat (200 + y))
+        [ Svg.Attributes.cx (String.fromFloat x)
+        , Svg.Attributes.cy (String.fromFloat y)
         , Svg.Attributes.r (String.fromFloat planetSize)
+        , Svg.Attributes.fill "white"
+        , Svg.Attributes.stroke "black"
+        ]
+        []
+
+
+viewSun : ( Float, Float ) -> Float -> Svg Msg
+viewSun ( x, y ) radius =
+    Svg.circle
+        [ Svg.Attributes.cx (String.fromFloat x)
+        , Svg.Attributes.cy (String.fromFloat y)
+        , Svg.Attributes.r (String.fromFloat radius)
+        , Svg.Attributes.fill "orange"
+        ]
+        []
+
+
+viewMoon : ( Float, Float ) -> Float -> Svg Msg
+viewMoon ( x, y ) radius =
+    Svg.circle
+        [ Svg.Attributes.cx (String.fromFloat x)
+        , Svg.Attributes.cy (String.fromFloat y)
+        , Svg.Attributes.r (String.fromFloat radius)
+        , Svg.Attributes.fill "gray"
+        ]
+        []
+
+
+viewEarth : ( Float, Float ) -> Float -> Svg Msg
+viewEarth ( x, y ) radius =
+    Svg.circle
+        [ Svg.Attributes.cx (String.fromFloat x)
+        , Svg.Attributes.cy (String.fromFloat y)
+        , Svg.Attributes.r (String.fromFloat radius)
+        , Svg.Attributes.fill "#9696ff"
+        ]
+        []
+
+
+viewLine : ( Float, Float ) -> ( Float, Float ) -> Svg Msg
+viewLine ( x1, y1 ) ( x2, y2 ) =
+    Svg.line
+        [ Svg.Attributes.x1 (String.fromFloat x1)
+        , Svg.Attributes.y1 (String.fromFloat y1)
+        , Svg.Attributes.x2 (String.fromFloat x2)
+        , Svg.Attributes.y2 (String.fromFloat y2)
+        , Svg.Attributes.stroke "orange"
         ]
         []
 
 
 view : Model -> Html Msg
 view model =
+    let
+        center =
+            ( svgSize / 2, svgSize / 2 )
+
+        year =
+            365.356
+
+        offset =
+            fromPolar ( radiusEarth, model.t / year )
+                |> Maths.invert
+
+        {--
+                |> Maths.plus--}
+    in
     [ [ --radiusNeptun
         --, radiusUranus
         --,
         radiusSaturn
       , radiusJupiter
       , radiusMars
-      , radiusEarth
+
+      --, radiusEarth
       , radiusVenus
       , radiusMercury
       ]
-        |> List.concatMap
-            (\radius ->
-                [ viewCircle radius
-                , viewPointAt (fromPolar ( radius, 0 ))
-                ]
-            )
-    , (if useKeplersModel then
+        |> List.map (viewCircle (Maths.plus center offset))
+    , if useKeplersModel then
         {--[ --( radiusNeptun, 3 )
           --, ( radiusUranus, 4 )
-          --,
-          ( radiusSaturn, 6 )
-        , ( radiusJupiter, 3 )
-        , ( radiusMars, 8 )
-        , ( radiusEarth, 6 )
-        , ( radiusVenus, 6 )
-        ]--}
-        []
-
-       else
-        [ ( radiusSaturn, 7 )
-        , ( radiusJupiter, 6 )
-        , ( radiusMars, 5 )
-        , ( radiusEarth, 4 )
-        , ( radiusVenus, 3 )
+          --,--}
+        [ radiusSaturn
+        , radiusJupiter
+        , radiusMars
+        , radiusEarth
+        , radiusVenus
         ]
-      )
-        |> List.map (\( radius, n ) -> viewPolygon n radius)
+            |> List.map
+                (\radius ->
+                    viewPlanetAt
+                        (fromPolar ( radius, model.t ))
+                )
+
+      else
+        [ ( radiusSaturn, 8, 29.4475 * year )
+        , ( radiusJupiter, 7, 11 * year + 315 )
+        , ( radiusMars, 6, 686.98 )
+
+        --, ( radiusEarth, 5, year )
+        , ( radiusVenus, 4, 224.701 )
+        , ( radiusMercury, 3, 87.969 )
+        ]
+            |> List.concatMap
+                (\( radius, n, speed ) ->
+                    [ {--viewPolygon (Maths.plus center offset)
+                        { points = n
+                        , radius = radius
+                        , rotation = model.t / speed
+                        }
+                    , --}
+                      viewPlanetAt
+                        (fromPolar ( radius, model.t / speed )
+                            |> Maths.plus offset
+                            |> Maths.plus center
+                        )
+                    ]
+                )
+            |> (++)
+                [ viewCircle center radiusEarth
+                , viewSun (Maths.plus offset center) radiusSun
+                , viewLine (Maths.plus offset center)
+                    (Maths.invert offset
+                        |> Maths.times 3
+                        |> Maths.plus center
+                    )
+                , viewCircle center radiusMoon
+                , viewMoon
+                    (fromPolar ( radiusMoon, model.t / 27.3217 )
+                        |> Maths.plus center
+                    )
+                    planetSize
+                , viewEarth center
+                    planetSize
+                ]
+            |> (++)
+                (ZodiacCircle.toSvg
+                    { innerRadius = radiusSaturn + radiusEarth
+                    , outerRadius = svgSize / 2
+                    , center = center
+                    }
+                )
     ]
         |> List.concat
         |> Svg.svg
@@ -149,7 +251,7 @@ radiusUranus =
 
 
 radiusSaturn =
-    svgSize / 2 - planetSize
+    svgSize * 3 / 10
 
 
 
@@ -161,7 +263,11 @@ radiusJupiter =
         Maths.incircleRadiusFromCubeExcircleRadius radiusSaturn
 
     else
-        Maths.incircleRadiusFromPolygonExcircleRadius 7 radiusSaturn
+        radiusSaturn * 5 / 6
+
+
+
+--Maths.incircleRadiusFromPolygonExcircleRadius 8 radiusSaturn
 
 
 radiusMars =
@@ -169,7 +275,11 @@ radiusMars =
         Maths.incircleRadiusFromTetraederExcircleRadius radiusJupiter
 
     else
-        Maths.incircleRadiusFromPolygonExcircleRadius 6 radiusJupiter
+        radiusSaturn * 4 / 6
+
+
+
+--Maths.incircleRadiusFromPolygonExcircleRadius 7 radiusJupiter
 
 
 radiusEarth =
@@ -177,7 +287,11 @@ radiusEarth =
         Maths.incircleRadiusFromDodecaederExcircleRadius radiusMars
 
     else
-        Maths.incircleRadiusFromPolygonExcircleRadius 5 radiusMars
+        radiusSaturn * 3 / 6
+
+
+
+--Maths.incircleRadiusFromPolygonExcircleRadius 6 radiusMars
 
 
 radiusVenus =
@@ -185,7 +299,11 @@ radiusVenus =
         Maths.incircleRadiusFromIcosahedronExcircleRadius radiusEarth
 
     else
-        Maths.incircleRadiusFromPolygonExcircleRadius 4 radiusEarth
+        radiusSaturn * 2 / 6
+
+
+
+--Maths.incircleRadiusFromPolygonExcircleRadius 5 radiusEarth
 
 
 radiusMercury =
@@ -193,19 +311,31 @@ radiusMercury =
         Maths.incircleRadiusFromOctahedronExcircleRadius radiusVenus
 
     else
-        Maths.incircleRadiusFromPolygonExcircleRadius 3 radiusVenus
+        radiusSaturn / 6
+
+
+
+--Maths.incircleRadiusFromPolygonExcircleRadius 4 radiusVenus
+
+
+radiusSun =
+    Maths.incircleRadiusFromPolygonExcircleRadius 3 radiusMercury
+
+
+radiusMoon =
+    radiusSaturn / 12
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick ->
-            ( model, Cmd.none )
+            ( { model | t = model.t + 0.5 }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Time.every 20 (\_ -> Tick)
 
 
 main : Program () Model Msg
