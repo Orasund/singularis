@@ -210,14 +210,14 @@ view model =
             (fromPolar ( svgSize / 2 - widthMinuteDisplay - radiusHours, hourlyRotation )
                 |> Maths.invert
                 |> Maths.plus center
-                |> Maths.plus (fromPolar ( radiusHours - widthSecondDisplay - radiusSeconds, secondlyRotation ) |> Maths.invert)
+                |> Maths.plus (fromPolar ( radiusHours - widthSecondDisplay - radiusSeconds, secondlyRotation - hourlyRotation - pi / 2 ) |> Maths.invert)
             )
             radiusSeconds
       , viewCircle [ Svg.Attributes.fill "gray" ]
             (fromPolar ( svgSize / 2 - widthMinuteDisplay - radiusHours, hourlyRotation )
                 |> Maths.invert
                 |> Maths.plus center
-                |> Maths.plus (fromPolar ( radiusSeconds, secondlyRotation ))
+                |> Maths.plus (fromPolar ( radiusSeconds, secondlyRotation - hourlyRotation - pi / 2 ))
             )
             (radiusHours - widthSecondDisplay - radiusSeconds)
       , {--viewLine
