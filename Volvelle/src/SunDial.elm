@@ -8,7 +8,7 @@ import Svg.Node
 import Svg.Path
 
 
-toSvg : { radius : Float, innerRadius : Float, moonRadius : Float } -> ( Float, Float ) -> List (Svg msg)
+toSvg : { radius : Float, innerRadius : Float, moonRadius : Float, pointerRadius : Float } -> ( Float, Float ) -> List (Svg msg)
 toSvg args ( x, y ) =
     [ [ Svg.Node.circle
             [ Svg.Attributes.fill "white"
@@ -42,9 +42,9 @@ toSvg args ( x, y ) =
             , y = y + args.moonRadius
             , radius = args.moonRadius
             }
-      , Svg.Node.path [ Svg.Attributes.stroke "black" ]
+      , Svg.Node.path [ Svg.Attributes.stroke "orange" ]
             [ fromPolar
-                ( args.radius, pi / 2 )
+                ( args.pointerRadius, pi / 2 )
                 |> Position.add ( x, y )
             , fromPolar ( args.innerRadius, pi / 2 )
                 |> Position.add ( x, y )

@@ -8,7 +8,7 @@ import Svg.Node
 import Svg.Path
 
 
-toSvg : { radius : Float, moonRadius : Float } -> ( Float, Float ) -> List (Svg msg)
+toSvg : { radius : Float, moonRadius : Float, pointerRadius : Float } -> ( Float, Float ) -> List (Svg msg)
 toSvg args center =
     let
         ( x, y ) =
@@ -25,6 +25,10 @@ toSvg args center =
             , Svg.Attributes.x (String.fromFloat x)
             , Svg.Attributes.y (String.fromFloat y)
             ]
+    , Svg.Node.path [ Svg.Attributes.stroke "gray" ]
+        [ fromPolar ( args.pointerRadius, 0 ) |> Position.add center
+        , fromPolar ( args.radius - args.radius / 4, 0 ) |> Position.add center
+        ]
     , Svg.Node.path [ Svg.Attributes.stroke "black" ]
         [ fromPolar ( args.radius, 0 ) |> Position.add center
         , fromPolar ( args.radius - args.radius / 4, 0 ) |> Position.add center

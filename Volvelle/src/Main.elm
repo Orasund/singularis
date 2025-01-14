@@ -24,14 +24,19 @@ size =
     400
 
 
-outerDialRadius : Float
-outerDialRadius =
+radius : Float
+radius =
     size / 2
+
+
+monthRadius : Float
+monthRadius =
+    radius * 7 / 8
 
 
 sunDialRadius : Float
 sunDialRadius =
-    outerDialRadius * 3 / 4
+    radius * 3 / 4
 
 
 moonDialRadius : Float
@@ -73,7 +78,8 @@ view model =
             pi / 2 + 2 * pi * rotation
     in
     [ OuterDial.toSvg
-        { radius = outerDialRadius
+        { radius = radius
+        , monthRadius = monthRadius
         , innerRadius = sunDialRadius
         }
         ( size / 2, size / 2 )
@@ -81,6 +87,7 @@ view model =
         { radius = sunDialRadius
         , innerRadius = moonDialRadius
         , moonRadius = moonRadius
+        , pointerRadius = radius
         }
         ( size / 2, size / 2 )
         |> Svg.g
@@ -98,6 +105,7 @@ view model =
     , MoonDial.toSvg
         { radius = moonDialRadius
         , moonRadius = moonRadius
+        , pointerRadius = radius
         }
         ( size / 2, size / 2 )
         |> Svg.g

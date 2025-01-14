@@ -7,7 +7,13 @@ import Svg.Attributes
 import Svg.Node
 
 
-toSvg : { radius : Float, innerRadius : Float } -> ( Float, Float ) -> List (Svg msg)
+toSvg :
+    { radius : Float
+    , monthRadius : Float
+    , innerRadius : Float
+    }
+    -> ( Float, Float )
+    -> List (Svg msg)
 toSvg args ( x, y ) =
     [ [ Svg.Node.circle
             [ Svg.Attributes.fill "white"
@@ -23,7 +29,7 @@ toSvg args ( x, y ) =
             ]
             { x = x
             , y = y
-            , radius = args.innerRadius
+            , radius = args.monthRadius
             }
       ]
     , [ ( "January", 31 )
@@ -48,7 +54,7 @@ toSvg args ( x, y ) =
 
                     ( x2, y2 ) =
                         fromPolar
-                            ( args.radius - (args.radius - args.innerRadius) / 2
+                            ( args.monthRadius - (args.monthRadius - args.innerRadius) * 2 / 3
                             , pi / 2 + 2 * pi * (2 * toFloat i + 1) / 24
                             )
                             |> Position.add ( x, y )
@@ -70,7 +76,7 @@ toSvg args ( x, y ) =
                             name
                   , Figure.line [ Svg.Attributes.stroke "black" ]
                         (fromPolar
-                            ( args.radius, r )
+                            ( args.monthRadius, r )
                             |> Position.add ( x, y )
                         )
                         (fromPolar ( args.innerRadius, r )
@@ -82,10 +88,10 @@ toSvg args ( x, y ) =
                                 (\j ->
                                     Figure.line [ Svg.Attributes.stroke "black" ]
                                         (fromPolar
-                                            ( args.radius, r + (2 * pi * (toFloat j * 5) / 365) )
+                                            ( args.monthRadius, r + (2 * pi * (toFloat j * 5) / 365) )
                                             |> Position.add ( x, y )
                                         )
-                                        (fromPolar ( args.radius - (args.radius - args.innerRadius) / 4, r + (2 * pi * (toFloat j * 5) / 365) )
+                                        (fromPolar ( args.monthRadius - (args.monthRadius - args.innerRadius) / 3, r + (2 * pi * (toFloat j * 5) / 365) )
                                             |> Position.add ( x, y )
                                         )
                                 )
@@ -105,11 +111,63 @@ toSvg args ( x, y ) =
                 in
                 Svg.Node.path [ Svg.Attributes.stroke "black" ]
                     [ fromPolar
-                        ( args.radius, r )
+                        ( args.monthRadius, r )
                         |> Position.add ( x, y )
-                    , fromPolar ( args.radius - (args.radius - args.innerRadius) / 6, r )
+                    , fromPolar ( args.monthRadius - (args.monthRadius - args.innerRadius) / 6, r )
                         |> Position.add ( x, y )
                     ]
             )
+    , [ "♈︎"
+      , "♉︎"
+      , "♊︎"
+      , "♋︎"
+      , "♌︎"
+      , "♍︎"
+      , "♎︎"
+      , "♏︎"
+      , "♐︎"
+      , "♑︎"
+      , "♒︎"
+      , "♓︎"
+      ]
+        |> List.indexedMap
+            (\i label ->
+                let
+                    r =
+                        pi / 2 + 2 * pi * toFloat i / 12 + (2 * pi * (59 + 21) / 365)
+
+                    ( x2, y2 ) =
+                        fromPolar
+                            ( args.radius - (args.radius - args.monthRadius) / 2
+                            , r + 2 * pi / 24
+                            )
+                            |> Position.add ( x, y )
+                in
+                [ Svg.Node.path [ Svg.Attributes.stroke "black" ]
+                    [ fromPolar
+                        ( args.radius, r )
+                        |> Position.add ( x, y )
+                    , fromPolar ( args.radius - (args.radius - args.monthRadius), r )
+                        |> Position.add ( x, y )
+                    ]
+                , ( x2, y2 )
+                    |> Svg.Node.text
+                        [ Svg.Attributes.transform
+                            ("rotate("
+                                ++ String.fromFloat (30 * toFloat i - 90)
+                                --r + 180)
+                                ++ ","
+                                ++ String.fromFloat x2
+                                ++ ","
+                                ++ String.fromFloat y2
+                                ++ ")"
+                            )
+                        ]
+                        { fontSize = 10
+                        }
+                        label
+                ]
+            )
+        |> List.concat
     ]
         |> List.concat
