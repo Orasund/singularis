@@ -71,7 +71,7 @@ toSvg args ( x, y ) =
                                     ++ ")"
                                 )
                             ]
-                            { fontSize = 10
+                            { fontSize = 16
                             }
                             name
                   , Figure.line [ Svg.Attributes.stroke "black" ]
@@ -163,7 +163,7 @@ toSvg args ( x, y ) =
                                 ++ ")"
                             )
                         ]
-                        { fontSize = 10
+                        { fontSize = 20
                         }
                         label
                 ]

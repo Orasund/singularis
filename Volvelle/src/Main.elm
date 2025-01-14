@@ -21,7 +21,7 @@ type Msg
 
 size : number
 size =
-    400
+    600
 
 
 radius : Float

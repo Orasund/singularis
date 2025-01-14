@@ -88,7 +88,7 @@ toSvg args ( x, y ) =
                                 ++ ")"
                             )
                         ]
-                        { fontSize = 12
+                        { fontSize = 18
                         }
                         (String.fromInt (i + 1))
             )
